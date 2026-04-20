@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0060)file:///C:/Users/Nicole/Downloads/wine_cellar_scanner_2.html -->
+<!-- saved from url=(0060)file:///C:/Users/Nicole/Downloads/wine_cellar_scanner_3.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -437,7 +437,6 @@
     <div class="header-sub">Scan your cellar — extract producers, vintages &amp; condition</div>
   </div>
 
-  <input type="file" id="fileInputCamera" accept="image/*" capture="environment" style="display:none">
   <input type="file" id="fileInputLibrary" accept="image/*,video/*" multiple="" style="display:none">
 
   <div style="display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:8px; margin-bottom:1rem;">
@@ -481,10 +480,8 @@
 </div>
 
 <script>
-  const fileInputCamera = document.getElementById('fileInputCamera');
-  const fileInputLibrary = document.getElementById('fileInputLibrary');
-  document.getElementById('cameraBtn').addEventListener('click', () => fileInputCamera.click());
-  document.getElementById('libraryBtn').addEventListener('click', () => fileInputLibrary.click());
+  const fileInputMain = document.getElementById('fileInputMain');
+  document.getElementById('addPhotosBtn').addEventListener('click', () => fileInputMain.click());
   const previewStrip = document.getElementById('previewStrip');
   const analyzeBtn = document.getElementById('analyzeBtn');
   const statusBar = document.getElementById('statusBar');
@@ -541,14 +538,16 @@
   }
 
   function handleFiles(input) {
+    if (!input.files || !input.files.length) return;
     const newFiles = Array.from(input.files);
     files = [...files, ...newFiles].slice(0, 6);
     renderPreviews();
     analyzeBtn.disabled = files.length === 0;
-    input.value = '';
+    setTimeout(() => { try { input.value = ''; } catch(e) {} }, 100);
   }
-  fileInputCamera.addEventListener('change', () => handleFiles(fileInputCamera));
-  fileInputLibrary.addEventListener('change', () => handleFiles(fileInputLibrary));
+  ['change', 'input'].forEach(evt => {
+    fileInputMain.addEventListener(evt, () => handleFiles(fileInputMain));
+  });
 
   function conditionClass(cond) {
     const c = (cond || '').toLowerCase();
