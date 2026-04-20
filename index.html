@@ -1,764 +1,245 @@
 <!DOCTYPE html>
-<!-- saved from url=(0060)file:///C:/Users/Nicole/Downloads/wine_cellar_scanner_4.html -->
+<!-- saved from url=(0044)file:///C:/Users/Nicole/Downloads/index.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cave à vin — Wine Cellar Scanner</title>
-<link href="./index_files/css2" rel="stylesheet">
+<title>Cave à vin</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --color-bg: #faf9f7;
-    --color-surface: #ffffff;
-    --color-surface-2: #f4f2ee;
-    --color-border: rgba(0,0,0,0.10);
-    --color-border-mid: rgba(0,0,0,0.18);
-    --color-border-strong: rgba(0,0,0,0.28);
-    --color-text: #1a1916;
-    --color-text-2: #5c5a54;
-    --color-text-3: #999790;
-    --color-danger-bg: #fdf0f0;
-    --color-danger-border: #f5c1c1;
-    --color-danger-text: #9b2c2c;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --color-bg: #141210;
-      --color-surface: #1e1c19;
-      --color-surface-2: #252320;
-      --color-border: rgba(255,255,255,0.08);
-      --color-border-mid: rgba(255,255,255,0.14);
-      --color-border-strong: rgba(255,255,255,0.22);
-      --color-text: #f0ede8;
-      --color-text-2: #a09d97;
-      --color-text-3: #6b6863;
-      --color-danger-bg: #2a1616;
-      --color-danger-border: #5a2020;
-      --color-danger-text: #f09595;
-    }
-  }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--color-bg);
-    color: var(--color-text);
-    min-height: 100dvh;
-    display: flex;
-    justify-content: center;
-    padding: 0 0 2rem;
-  }
-
-  .app {
-    width: 100%;
-    max-width: 420px;
-    padding: 0;
-  }
-
-  .header {
-    padding: 1.5rem 1.25rem 1rem;
-    border-bottom: 0.5px solid var(--color-border);
-    margin-bottom: 1.25rem;
-  }
-
-  .header-eyebrow {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--color-text-3);
-    margin-bottom: 4px;
-  }
-
-  .header-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 26px;
-    font-weight: 500;
-    color: var(--color-text);
-    letter-spacing: 0.01em;
-  }
-
-  .header-sub {
-    font-size: 12px;
-    color: var(--color-text-2);
-    margin-top: 3px;
-  }
-
-  .upload-zone {
-    margin: 0 1.25rem 1.25rem;
-    border: 0.5px dashed var(--color-border-mid);
-    border-radius: 12px;
-    background: var(--color-surface-2);
-    padding: 2.25rem 1rem;
-    text-align: center;
-    cursor: pointer;
-    transition: border-color 0.15s, background 0.15s;
-    position: relative;
-  }
-
-  .upload-zone:hover {
-    border-color: var(--color-border-strong);
-    background: var(--color-surface);
-  }
-
-  .upload-zone input[type=file] {
-    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
-  }
-
-  .upload-icon {
-    width: 44px; height: 44px;
-    margin: 0 auto 12px;
-    background: var(--color-surface);
-    border: 0.5px solid var(--color-border-mid);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-  }
-
-  .upload-icon svg { width: 20px; height: 20px; stroke: var(--color-text-2); fill: none; stroke-width: 1.5; }
-
-  .upload-label {
-    font-size: 13px;
-    color: var(--color-text-2);
-    line-height: 1.6;
-  }
-
-  .upload-label strong { color: var(--color-text); font-weight: 500; }
-  .upload-label small { font-size: 11px; color: var(--color-text-3); display: block; margin-top: 2px; }
-
-  .preview-strip {
-    display: flex;
-    gap: 8px;
-    padding: 0 1.25rem 1.25rem;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-
-  .preview-strip::-webkit-scrollbar { display: none; }
-
-  .preview-thumb {
-    position: relative;
-    flex: 0 0 76px;
-    height: 76px;
-    border-radius: 8px;
-    overflow: hidden;
-    border: 0.5px solid var(--color-border);
-    background: var(--color-surface-2);
-  }
-
-  .preview-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-  .video-placeholder {
-    width: 100%; height: 100%;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 4px;
-    font-size: 22px;
-  }
-
-  .video-label {
-    font-size: 9px;
-    color: var(--color-text-3);
-    font-family: 'DM Sans', sans-serif;
-  }
-
-  .remove-btn {
-    position: absolute; top: 3px; right: 3px;
-    width: 18px; height: 18px;
-    background: var(--color-surface);
-    border: 0.5px solid var(--color-border-mid);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    font-size: 9px;
-    color: var(--color-text-2);
-    line-height: 1;
-    font-family: 'DM Sans', sans-serif;
-  }
-
-  .controls {
-    padding: 0 1.25rem 1.25rem;
-    display: flex; flex-direction: column; gap: 12px;
-  }
-
-  .field { display: flex; flex-direction: column; gap: 5px; }
-
-  .field label {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--color-text-3);
-  }
-
-  .field textarea {
-    width: 100%;
-    min-height: 60px;
-    padding: 9px 11px;
-    font-size: 13px;
-    font-family: 'DM Sans', sans-serif;
-    border: 0.5px solid var(--color-border);
-    border-radius: 8px;
-    background: var(--color-surface-2);
-    color: var(--color-text);
-    resize: none;
-    line-height: 1.6;
-    outline: none;
-    transition: border-color 0.12s;
-  }
-
-  .field textarea:focus { border-color: var(--color-border-strong); }
-
-  .analyze-btn {
-    width: 100%;
-    padding: 12px;
-    background: var(--color-surface);
-    border: 0.5px solid var(--color-border-strong);
-    border-radius: 8px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--color-text);
-    cursor: pointer;
-    transition: background 0.12s, transform 0.1s;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-  }
-
-  .analyze-btn:hover { background: var(--color-surface-2); }
-  .analyze-btn:active { transform: scale(0.985); }
-  .analyze-btn:disabled { opacity: 0.38; cursor: default; transform: none; }
-
-  .analyze-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.5; flex-shrink: 0; }
-
-  .status-bar {
-    margin: 0 1.25rem 1.25rem;
-    padding: 10px 13px;
-    background: var(--color-surface-2);
-    border: 0.5px solid var(--color-border);
-    border-radius: 8px;
-    font-size: 12px;
-    color: var(--color-text-2);
-    display: flex; align-items: center; gap: 9px;
-  }
-
-  .spinner {
-    width: 14px; height: 14px;
-    border: 1.5px solid var(--color-border-mid);
-    border-top-color: var(--color-text-2);
-    border-radius: 50%;
-    animation: spin 0.75s linear infinite;
-    flex-shrink: 0;
-  }
-
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .error-msg {
-    margin: 0 1.25rem 1.25rem;
-    padding: 10px 13px;
-    background: var(--color-danger-bg);
-    border: 0.5px solid var(--color-danger-border);
-    border-radius: 8px;
-    font-size: 12px;
-    color: var(--color-danger-text);
-    line-height: 1.6;
-  }
-
-  .results-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 1.25rem;
-    margin-bottom: 12px;
-  }
-
-  .results-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 20px;
-    font-weight: 500;
-    color: var(--color-text);
-  }
-
-  .count-badge {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 11px;
-    color: var(--color-text-2);
-    background: var(--color-surface-2);
-    border: 0.5px solid var(--color-border);
-    border-radius: 999px;
-    padding: 2px 9px;
-  }
-
-  .wine-list { padding: 0 1.25rem; }
-
-  .wine-card {
-    background: var(--color-surface);
-    border: 0.5px solid var(--color-border);
-    border-radius: 12px;
-    padding: 13px 15px;
-    margin-bottom: 9px;
-  }
-
-  .wine-card-top {
-    display: flex; align-items: flex-start; justify-content: space-between;
-    margin-bottom: 5px;
-  }
-
-  .wine-producer {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 17px;
-    font-weight: 500;
-    color: var(--color-text);
-    flex: 1;
-    line-height: 1.25;
-  }
-
-  .wine-vintage {
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--color-text-2);
-    background: var(--color-surface-2);
-    border: 0.5px solid var(--color-border);
-    border-radius: 6px;
-    padding: 2px 7px;
-    margin-left: 8px;
-    flex-shrink: 0;
-    font-family: 'DM Sans', sans-serif;
-  }
-
-  .wine-appellation {
-    font-size: 12px;
-    color: var(--color-text-2);
-    margin-bottom: 10px;
-    font-style: italic;
-    font-family: 'Cormorant Garamond', serif;
-  }
-
-  .wine-meta {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-  }
-
-  .meta-item { display: flex; flex-direction: column; gap: 1px; }
-
-  .meta-label {
-    font-size: 9px;
-    color: var(--color-text-3);
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    font-family: 'DM Sans', sans-serif;
-  }
-
-  .meta-value {
-    font-size: 12px;
-    color: var(--color-text);
-    font-weight: 500;
-    font-family: 'DM Sans', sans-serif;
-  }
-
-  .cond-dot {
-    display: inline-block;
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    margin-right: 4px;
-    vertical-align: middle;
-  }
-
-  .cond-excellent { background: #1D9E75; }
-  .cond-good { background: #639922; }
-  .cond-fair { background: #BA7517; }
-  .cond-poor { background: #E24B4A; }
-  .cond-unknown { background: var(--color-text-3); }
-
-  .ws-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    margin-top: 10px;
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--color-text-secondary);
-    text-decoration: none;
-    border: 0.5px solid var(--color-border-tertiary);
-    border-radius: var(--border-radius-md);
-    padding: 4px 9px;
-    background: var(--color-background-secondary);
-    transition: border-color 0.12s, color 0.12s;
-  }
-  .ws-link:hover { border-color: var(--color-border-secondary); color: var(--color-text-primary); }
-  .ws-link svg { width: 10px; height: 10px; stroke: currentColor; fill: none; stroke-width: 2; flex-shrink: 0; }
-
-  .wine-notes {
-    margin-top: 9px;
-    font-size: 11px;
-    color: var(--color-text-2);
-    line-height: 1.5;
-    font-family: 'DM Sans', sans-serif;
-    border-top: 0.5px solid var(--color-border);
-    padding-top: 8px;
-  }
-
-  .empty-state {
-    text-align: center;
-    padding: 2rem 1rem;
-    color: var(--color-text-3);
-    font-size: 14px;
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-  }
-
-  .export-row {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-    padding: 1rem 1.25rem 0;
-  }
-
-  .export-btn {
-    padding: 10px;
-    background: var(--color-surface-2);
-    border: 0.5px solid var(--color-border);
-    border-radius: 8px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--color-text);
-    cursor: pointer;
-    text-align: center;
-    transition: background 0.12s, border-color 0.12s;
-  }
-
-  .export-btn:hover { background: var(--color-surface); border-color: var(--color-border-mid); }
-
-
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f7f5f2; color: #1a1916; min-height: 100vh; }
+.app { max-width: 480px; margin: 0 auto; padding: 20px 16px 60px; }
+h1 { font-size: 26px; font-weight: 600; margin-bottom: 4px; }
+.sub { font-size: 13px; color: #666; margin-bottom: 24px; }
+.pick-btn { display: block; width: 100%; padding: 18px; background: #fff; border: 1.5px solid #ccc; border-radius: 12px; font-size: 15px; font-weight: 500; color: #1a1916; text-align: center; cursor: pointer; margin-bottom: 12px; }
+.pick-btn:active { background: #f0ede8; }
+#thumbs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.thumb { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; border: 1px solid #ddd; }
+textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; font-family: inherit; resize: none; background: #fff; margin-bottom: 12px; }
+#analyseBtn { display: block; width: 100%; padding: 16px; background: #1a1916; color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 16px; }
+#analyseBtn:disabled { opacity: 0.4; cursor: default; }
+#analyseBtn:active { opacity: 0.8; }
+.status { padding: 12px; background: #eee; border-radius: 8px; font-size: 13px; color: #555; margin-bottom: 12px; text-align: center; }
+.error { padding: 12px; background: #fdf0f0; border: 1px solid #f5c1c1; border-radius: 8px; font-size: 13px; color: #9b2c2c; margin-bottom: 12px; }
+.card { background: #fff; border: 1px solid #e0ddd8; border-radius: 12px; padding: 16px; margin-bottom: 10px; }
+.card-producer { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
+.card-app { font-size: 13px; color: #888; font-style: italic; margin-bottom: 10px; }
+.card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.card-field label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: #aaa; margin-bottom: 2px; }
+.card-field span { font-size: 13px; font-weight: 500; }
+.card-notes { font-size: 12px; color: #888; border-top: 1px solid #eee; padding-top: 8px; margin-top: 4px; }
+.ws-link { display: inline-block; margin-top: 10px; font-size: 12px; color: #555; border: 1px solid #ddd; border-radius: 6px; padding: 5px 10px; text-decoration: none; }
+.vintage-badge { display: inline-block; font-size: 11px; font-weight: 600; background: #f0ede8; border-radius: 5px; padding: 2px 7px; margin-left: 8px; vertical-align: middle; }
+.export-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
+.export-btn { padding: 12px; background: #fff; border: 1px solid #ccc; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; }
 </style>
 </head>
 <body>
 <div class="app">
-  <div class="header">
-    <div class="header-eyebrow">Wine Cellar Scanner</div>
-    <div class="header-title">Cave à vin</div>
-    <div class="header-sub">Scan your cellar — extract producers, vintages &amp; condition</div>
-  </div>
+  <h1>Cave à vin</h1>
+  <p class="sub">Scan your cellar — extract producers, vintages &amp; condition</p>
 
-  <label style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:1.25rem;margin-bottom:1rem;background:var(--color-surface);border:0.5px solid var(--color-border-strong);border-radius:8px;font-family:&#39;DM Sans&#39;,sans-serif;font-size:14px;font-weight:500;color:var(--color-text);cursor:pointer;box-sizing:border-box;">
-    <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.5;flex-shrink:0;"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-    Add photos or video
-    <input type="file" id="fileInputMain" accept="image/*,video/*" multiple="" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;">
+  <label class="pick-btn" for="filePicker">
+    📷 &nbsp;Add photos or video
   </label>
+  <input type="file" id="filePicker" accept="image/*,video/*" multiple="" style="position:fixed;top:-100px;left:-100px;width:1px;height:1px;opacity:0;">
 
-  <div class="preview-strip" id="previewStrip" style="display:none"></div>
+  <div id="thumbs"></div>
 
-  <div class="controls">
-    <div class="field">
-      <label>Additional notes (optional)</label>
-      <textarea id="notesInput" placeholder="e.g. top shelf left rack, mixed reds, bin A3…"></textarea>
-    </div>
-    <button class="analyze-btn" id="analyzeBtn" disabled="">
-      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><path d="M21 21l-4.35-4.35"></path></svg>
-      Analyse cellar
-    </button>
-  </div>
+  <textarea id="notes" rows="2" placeholder="Notes (optional) — e.g. top shelf, bin A3…"></textarea>
 
-  <div class="status-bar" id="statusBar" style="display:none"></div>
-  <div class="error-msg" id="errorMsg" style="display:none"></div>
+  <button id="analyseBtn" disabled="">Analyse cellar</button>
 
-  <div id="resultsSection" style="display:none">
-    <div class="results-header">
-      <div class="results-title">Identified wines</div>
-      <span class="count-badge" id="wineCount">0 bottles</span>
-    </div>
-    <div class="wine-list" id="wineList"></div>
-    <div class="export-row">
-      <button class="export-btn" id="csvBtn">Download CSV</button>
-      <button class="export-btn" id="jsonBtn">Download JSON</button>
-    </div>
-  </div>
+  <div id="status" style="display:none"></div>
+  <div id="error" style="display:none"></div>
+  <div id="results"></div>
 </div>
 
 <script>
-  const fileInputMain = document.getElementById('fileInputMain');
-  const previewStrip = document.getElementById('previewStrip');
-  const analyzeBtn = document.getElementById('analyzeBtn');
-  const statusBar = document.getElementById('statusBar');
-  const errorMsg = document.getElementById('errorMsg');
-  const resultsSection = document.getElementById('resultsSection');
-  const wineList = document.getElementById('wineList');
-  const wineCount = document.getElementById('wineCount');
-  const notesInput = document.getElementById('notesInput');
+const picker = document.getElementById('filePicker');
+const thumbsEl = document.getElementById('thumbs');
+const analyseBtn = document.getElementById('analyseBtn');
+const statusEl = document.getElementById('status');
+const errorEl = document.getElementById('error');
+const resultsEl = document.getElementById('results');
+const notesEl = document.getElementById('notes');
 
-  function setStatus(msg, loading = false) {
-    statusBar.style.display = 'flex';
-    statusBar.innerHTML = loading
-      ? `<div class="spinner"></div><span>${msg}</span>`
-      : `<span>${msg}</span>`;
-  }
+let files = [];
+let wines = [];
 
-  function clearStatus() { statusBar.style.display = 'none'; }
+picker.addEventListener('change', function() {
+  if (!this.files || !this.files.length) return;
+  files = [...files, ...Array.from(this.files)].slice(0, 6);
+  renderThumbs();
+  analyseBtn.disabled = false;
+});
 
-  function showError(msg) {
-    errorMsg.textContent = msg;
-    errorMsg.style.display = 'block';
-    setTimeout(() => { errorMsg.style.display = 'none'; }, 8000);
-  }
+function renderThumbs() {
+  thumbsEl.innerHTML = '';
+  files.forEach((f, i) => {
+    if (f.type.startsWith('image/')) {
+      const img = document.createElement('img');
+      img.className = 'thumb';
+      img.src = URL.createObjectURL(f);
+      thumbsEl.appendChild(img);
+    } else {
+      const div = document.createElement('div');
+      div.className = 'thumb';
+      div.style.cssText = 'display:flex;align-items:center;justify-content:center;background:#eee;font-size:28px;';
+      div.textContent = '🎬';
+      thumbsEl.appendChild(div);
+    }
+  });
+}
 
-  function renderPreviews() {
-    if (!files.length) { previewStrip.style.display = 'none'; return; }
-    previewStrip.style.display = 'flex';
-    previewStrip.innerHTML = '';
-    files.forEach((f, i) => {
-      const thumb = document.createElement('div');
-      thumb.className = 'preview-thumb';
-      const isVideo = f.type.startsWith('video/');
-      if (isVideo) {
-        thumb.innerHTML = `<div class="video-placeholder"><span>🎬</span><span class="video-label">video</span></div>`;
-      } else {
-        const url = URL.createObjectURL(f);
-        const img = document.createElement('img');
-        img.src = url;
-        const btn = document.createElement('button');
-        btn.className = 'remove-btn';
-        btn.dataset.idx = i;
-        btn.textContent = '✕';
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          files.splice(parseInt(e.currentTarget.dataset.idx), 1);
-          renderPreviews();
-          analyzeBtn.disabled = files.length === 0;
-        });
-        thumb.appendChild(img);
-        thumb.appendChild(btn);
+function setStatus(msg) { statusEl.className = 'status'; statusEl.textContent = msg; statusEl.style.display = 'block'; }
+function clearStatus() { statusEl.style.display = 'none'; }
+function showError(msg) { errorEl.className = 'error'; errorEl.textContent = msg; errorEl.style.display = 'block'; }
+function clearError() { errorEl.style.display = 'none'; }
+
+async function resizeImage(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const MAX = 1600;
+      let w = img.width, h = img.height;
+      if (w > MAX || h > MAX) {
+        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+        else { w = Math.round(w * MAX / h); h = MAX; }
       }
-      previewStrip.appendChild(thumb);
-    });
-  }
-
-  function handleFiles(input) {
-    if (!input.files || !input.files.length) return;
-    const newFiles = Array.from(input.files);
-    files = [...files, ...newFiles].slice(0, 6);
-    renderPreviews();
-    analyzeBtn.disabled = files.length === 0;
-    setTimeout(() => { try { input.value = ''; } catch(e) {} }, 100);
-  }
-  ['change', 'input'].forEach(evt => {
-    fileInputMain.addEventListener(evt, () => handleFiles(fileInputMain));
-  });
-
-  function conditionClass(cond) {
-    const c = (cond || '').toLowerCase();
-    if (c.includes('excellent') || c.includes('perfect')) return 'cond-excellent';
-    if (c.includes('good')) return 'cond-good';
-    if (c.includes('fair') || c.includes('average')) return 'cond-fair';
-    if (c.includes('poor') || c.includes('damaged')) return 'cond-poor';
-    return 'cond-unknown';
-  }
-
-  function renderWines(data) {
-    wineList.innerHTML = '';
-    if (!data.length) {
-      wineList.innerHTML = '<div class="empty-state">No wines detected in the provided images.</div>';
-      return;
-    }
-    data.forEach(w => {
-      const card = document.createElement('div');
-      card.className = 'wine-card';
-      card.innerHTML = `
-        <div class="wine-card-top">
-          <div class="wine-producer">${w.producer || '—'}</div>
-          ${w.vintage ? `<div class="wine-vintage">${w.vintage}</div>` : ''}
-        </div>
-        ${w.appellation ? `<div class="wine-appellation">${w.appellation}</div>` : ''}
-        <div class="wine-meta">
-          <div class="meta-item">
-            <span class="meta-label">Varietal / Type</span>
-            <span class="meta-value">${w.varietal || '—'}</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Condition</span>
-            <span class="meta-value"><span class="cond-dot ${conditionClass(w.condition)}"></span>${w.condition || '—'}</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Format</span>
-            <span class="meta-value">${w.format || '—'}</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Qty visible</span>
-            <span class="meta-value">${w.quantity != null ? w.quantity : '—'}</span>
-          </div>
-        </div>
-        ${w.notes ? `<div class="wine-notes">${w.notes}</div>` : ''}
-        <a class="ws-link" href="https://www.wine-searcher.com/find/${encodeURIComponent([w.producer, w.vintage, w.appellation].filter(Boolean).join(' '))}" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-          Search price on Wine-Searcher
-          <svg viewBox="0 0 24 24" style="margin-left:2px"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-        </a>
-      `;
-      wineList.appendChild(card);
-    });
-  }
-
-  async function toBase64(file) {
-    return new Promise((res, rej) => {
-      const img = new Image();
-      const url = URL.createObjectURL(file);
-      img.onload = () => {
-        URL.revokeObjectURL(url);
-        const canvas = document.createElement('canvas');
-        let w = img.width, h = img.height;
-        const MAX = 1920;
-        if (w > MAX || h > MAX) {
-          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
-          else { w = Math.round(w * MAX / h); h = MAX; }
-        }
-        canvas.width = w; canvas.height = h;
-        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        let quality = 0.85;
-        const tryEncode = () => {
-          const data = canvas.toDataURL('image/jpeg', quality).split(',')[1];
-          const bytes = Math.ceil(data.length * 3 / 4);
-          if (bytes > 4500000 && quality > 0.3) { quality -= 0.1; tryEncode(); }
-          else res(data);
-        };
-        tryEncode();
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      let q = 0.82;
+      const shrink = () => {
+        const b64 = canvas.toDataURL('image/jpeg', q).split(',')[1];
+        if (b64.length * 0.75 > 4500000 && q > 0.3) { q -= 0.1; shrink(); }
+        else resolve(b64);
       };
-      img.onerror = () => rej(new Error('Image load failed'));
-      img.src = url;
-    });
-  }
+      shrink();
+    };
+    img.onerror = reject;
+    img.src = URL.createObjectURL(file);
+  });
+}
 
-  async function extractVideoFrame(file) {
-    return new Promise((res) => {
-      const video = document.createElement('video');
-      video.src = URL.createObjectURL(file);
-      video.crossOrigin = 'anonymous';
-      video.muted = true;
-      video.currentTime = 1;
-      video.addEventListener('seeked', () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth || 640;
-        canvas.height = video.videoHeight || 480;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        res(canvas.toDataURL('image/jpeg', 0.85).split(',')[1]);
-      }, { once: true });
-      video.load();
-    });
-  }
+async function getVideoFrame(file) {
+  return new Promise((resolve) => {
+    const video = document.createElement('video');
+    video.muted = true;
+    video.src = URL.createObjectURL(file);
+    video.currentTime = 1;
+    video.addEventListener('seeked', () => {
+      const c = document.createElement('canvas');
+      c.width = video.videoWidth || 640; c.height = video.videoHeight || 480;
+      c.getContext('2d').drawImage(video, 0, 0, c.width, c.height);
+      resolve(c.toDataURL('image/jpeg', 0.8).split(',')[1]);
+    }, { once: true });
+    video.load();
+  });
+}
 
-  analyzeBtn.addEventListener('click', async () => {
-    if (!files.length) return;
-    analyzeBtn.disabled = true;
-    clearStatus();
-    errorMsg.style.display = 'none';
-    resultsSection.style.display = 'none';
+analyseBtn.addEventListener('click', async () => {
+  if (!files.length) return;
+  analyseBtn.disabled = true;
+  clearError();
+  resultsEl.innerHTML = '';
+  setStatus('Preparing images…');
 
-    const imageFiles = files.filter(f => f.type.startsWith('image/'));
-    const videoFiles = files.filter(f => f.type.startsWith('video/'));
-
-    setStatus('Preparing images…', true);
-
-    const content = [];
-    for (const f of imageFiles) {
-      try {
-        const b64 = await toBase64(f);
-        content.push({ type: 'image', source: { type: 'base64', media_type: f.type, data: b64 } });
-      } catch(e) {}
-    }
-    for (const f of videoFiles) {
-      try {
-        setStatus(`Extracting frame from ${f.name}…`, true);
-        const b64 = await extractVideoFrame(f);
-        content.push({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: b64 } });
-      } catch(e) {}
-    }
-
-    if (!content.length) {
-      showError('Could not read any files. Please try again.');
-      analyzeBtn.disabled = false;
-      return;
-    }
-
-    const notes = notesInput.value.trim();
-    content.push({ type: 'text', text: `You are a master sommelier and wine cellar expert. Analyse the provided ${content.length} image(s) of a wine cellar or wine rack.
-
-Extract EVERY visible wine bottle or label. For each, return a JSON array of objects with these fields:
-- producer: winery / domaine / château name
-- vintage: year as a string (or null if not visible)
-- appellation: AOC/region/denomination if visible
-- varietal: grape variety or wine type (e.g. "Cabernet Sauvignon", "Champagne Brut")
-- condition: one of "Excellent", "Good", "Fair", "Poor", or "Unknown" — assess label clarity, fill level if visible, cork condition
-- format: bottle size if discernible (e.g. "750ml", "Magnum", "Jeroboam"), else null
-- quantity: number of bottles of this exact wine visible as an integer, or null
-- notes: any additional observations (e.g. "label partially torn", "low fill level", "bin label reads A3")
-
-${notes ? `User context: ${notes}` : ''}
-
-Respond ONLY with valid JSON — a raw JSON array, no markdown, no preamble, no backticks.` });
-
-    setStatus('Analysing with AI…', true);
-
+  const content = [];
+  for (const f of files) {
     try {
-      const resp = await fetch('https://wine-proxy.nicole-lew.workers.dev/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 4000,
-          messages: [{ role: 'user', content }]
-        })
-      });
-
-      const data = await resp.json();
-      if (!resp.ok) throw new Error(data.error?.message || JSON.stringify(data));
-
-      const raw = data.content.map(b => b.text || '').join('').trim();
-      const clean = raw.replace(/```json|```/g, '').trim();
-      let parsed;
-      try { parsed = JSON.parse(clean); }
-      catch(e) { throw new Error('Could not parse AI response. Please retry.'); }
-
-      wines = Array.isArray(parsed) ? parsed : [parsed];
-      renderWines(wines);
-      wineCount.textContent = wines.length === 1 ? '1 bottle' : `${wines.length} bottles`;
-      resultsSection.style.display = 'block';
-      clearStatus();
-      setStatus(`Found ${wines.length} wine${wines.length !== 1 ? 's' : ''}. Ready to export.`);
-    } catch(e) {
-      showError(e.message || 'Analysis failed. Please try again.');
-      clearStatus();
-    }
-
-    analyzeBtn.disabled = false;
-  });
-
-  function toCSV(data) {
-    const headers = ['producer','vintage','appellation','varietal','condition','format','quantity','notes'];
-    const rows = data.map(w => headers.map(h => {
-      const v = (w[h] ?? '').toString().replace(/"/g, '""');
-      return `"${v}"`;
-    }).join(','));
-    return [headers.join(','), ...rows].join('\n');
+      const b64 = f.type.startsWith('video/') ? await getVideoFrame(f) : await resizeImage(f);
+      const mt = f.type.startsWith('video/') ? 'image/jpeg' : f.type;
+      content.push({ type: 'image', source: { type: 'base64', media_type: mt, data: b64 } });
+    } catch(e) { console.error(e); }
   }
 
-  function download(content, filename, mime) {
-    const blob = new Blob([content], { type: mime });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(a.href);
+  if (!content.length) { showError('Could not read images. Please try again.'); analyseBtn.disabled = false; clearStatus(); return; }
+
+  const notes = notesEl.value.trim();
+  content.push({ type: 'text', text: `You are a master sommelier. Analyse these ${content.length} cellar image(s) and extract every visible wine bottle or label.
+
+Return ONLY a raw JSON array (no markdown, no backticks) where each object has:
+- producer: winery/domaine/château name
+- vintage: year as string or null
+- appellation: region/AOC or null
+- varietal: grape variety or wine type
+- condition: "Excellent", "Good", "Fair", "Poor", or "Unknown"
+- format: bottle size or null
+- quantity: integer count visible or null
+- notes: observations or null
+${notes ? '\nContext: ' + notes : ''}` });
+
+  setStatus('Analysing with AI…');
+
+  try {
+    const resp = await fetch('https://wine-proxy.nicole-lew.workers.dev/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 4000, messages: [{ role: 'user', content }] })
+    });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.error?.message || JSON.stringify(data));
+    const raw = data.content.map(b => b.text || '').join('').trim().replace(/```json|```/g, '').trim();
+    wines = JSON.parse(raw);
+    if (!Array.isArray(wines)) wines = [wines];
+    renderResults();
+    clearStatus();
+    setStatus('Found ' + wines.length + ' wine' + (wines.length !== 1 ? 's' : '') + '. Ready to export.');
+  } catch(e) {
+    showError(e.message || 'Analysis failed. Please retry.');
+    clearStatus();
   }
+  analyseBtn.disabled = false;
+});
 
-  document.getElementById('csvBtn').addEventListener('click', () => {
-    if (!wines.length) return;
-    download(toCSV(wines), `cellar_scan_${new Date().toISOString().slice(0,10)}.csv`, 'text/csv');
-  });
+function condDot(c) {
+  const s = (c||'').toLowerCase();
+  const col = s.includes('excellent') ? '#1D9E75' : s.includes('good') ? '#639922' : s.includes('fair') ? '#BA7517' : s.includes('poor') ? '#E24B4A' : '#aaa';
+  return `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${col};margin-right:4px;vertical-align:middle;"></span>`;
+}
 
-  document.getElementById('jsonBtn').addEventListener('click', () => {
-    if (!wines.length) return;
-    download(JSON.stringify(wines, null, 2), `cellar_scan_${new Date().toISOString().slice(0,10)}.json`, 'application/json');
+function renderResults() {
+  resultsEl.innerHTML = '';
+  if (!wines.length) { resultsEl.innerHTML = '<p style="text-align:center;color:#aaa;padding:20px;">No wines detected.</p>'; return; }
+  wines.forEach(w => {
+    const q = encodeURIComponent([w.producer, w.vintage, w.appellation].filter(Boolean).join(' '));
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="card-producer">${w.producer || '—'}<span class="vintage-badge">${w.vintage || '?'}</span></div>
+      ${w.appellation ? `<div class="card-app">${w.appellation}</div>` : ''}
+      <div class="card-grid">
+        <div class="card-field"><label>Varietal</label><span>${w.varietal || '—'}</span></div>
+        <div class="card-field"><label>Condition</label><span>${condDot(w.condition)}${w.condition || '—'}</span></div>
+        <div class="card-field"><label>Format</label><span>${w.format || '—'}</span></div>
+        <div class="card-field"><label>Qty visible</label><span>${w.quantity ?? '—'}</span></div>
+      </div>
+      ${w.notes ? `<div class="card-notes">${w.notes}</div>` : ''}
+      <a class="ws-link" href="https://www.wine-searcher.com/find/${q}" target="_blank">Search price on Wine-Searcher ↗</a>
+    `;
+    resultsEl.appendChild(card);
   });
+  const row = document.createElement('div');
+  row.className = 'export-row';
+  row.innerHTML = `<button class="export-btn" id="csvBtn">Download CSV</button><button class="export-btn" id="jsonBtn">Download JSON</button>`;
+  resultsEl.appendChild(row);
+  document.getElementById('csvBtn').onclick = exportCSV;
+  document.getElementById('jsonBtn').onclick = exportJSON;
+}
+
+function exportCSV() {
+  const h = ['producer','vintage','appellation','varietal','condition','format','quantity','notes'];
+  const rows = [h.join(','), ...wines.map(w => h.map(k => `"${(w[k]??'').toString().replace(/"/g,'""')}"`).join(','))].join('\n');
+  dl(rows, `cellar_${today()}.csv`, 'text/csv');
+}
+function exportJSON() { dl(JSON.stringify(wines, null, 2), `cellar_${today()}.json`, 'application/json'); }
+function today() { return new Date().toISOString().slice(0,10); }
+function dl(content, name, mime) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], { type: mime }));
+  a.download = name; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
 </script>
 
 
