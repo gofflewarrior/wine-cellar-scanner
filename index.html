@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<!-- saved from url=(0047)file:///Users/nicole/Downloads/index%20(6).html -->
+<!-- saved from url=(0047)file:///Users/nicole/Downloads/index%20(7).html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cellar Legacy</title>
 </head>
 <body>
-<p id="msg">Supabase error: supabase is not defined</p>
+<p id="msg">supabase type: undefined | window.supabase type: undefined | createClient: false | supabase not defined</p>
 <button id="testBtn">Tap me</button>
-<p id="result"></p>
+<p id="result" style="word-break:break-all;font-size:12px;"></p>
 
 <script src="file:///Users/nicole/Downloads/supabase.min.js"></script>
 <script>
@@ -16,16 +16,28 @@ document.getElementById('testBtn').addEventListener('click', function() {
   document.getElementById('result').textContent = 'Button works!';
 });
 
-try {
-  const { createClient } = supabase;
-  const sb = createClient(
-    'https://gxucxzjwwkahccxqjhwv.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4dWN4emp3d2thaGNjeHFqaHd2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NzA0MTYsImV4cCI6MjA5MzU0NjQxNn0.v6r20dMoNn52t4PCcaRWkpmCXuHNoCf1G7e9iCtFZV4'
-  );
-  document.getElementById('msg').textContent = 'Supabase loaded OK!';
-} catch(e) {
-  document.getElementById('msg').textContent = 'Supabase error: ' + e.message;
-}
+window.addEventListener('load', function() {
+  var info = [];
+  info.push('supabase type: ' + typeof supabase);
+  info.push('window.supabase type: ' + typeof window.supabase);
+  info.push('createClient: ' + (typeof supabase !== 'undefined' && typeof supabase.createClient));
+  
+  try {
+    if (typeof supabase !== 'undefined' && supabase.createClient) {
+      var sb = supabase.createClient(
+        'https://gxucxzjwwkahccxqjhwv.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4dWN4emp3d2thaGNjeHFqaHd2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NzA0MTYsImV4cCI6MjA5MzU0NjQxNn0.v6r20dMoNn52t4PCcaRWkpmCXuHNoCf1G7e9iCtFZV4'
+      );
+      info.push('Supabase client: OK');
+    } else {
+      info.push('supabase not defined');
+    }
+  } catch(e) {
+    info.push('Error: ' + e.message);
+  }
+  
+  document.getElementById('msg').textContent = info.join(' | ');
+});
 </script>
 
 
