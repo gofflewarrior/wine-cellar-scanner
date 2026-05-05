@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0047)file:///Users/nicole/Downloads/index%20(9).html -->
+<!-- saved from url=(0048)file:///Users/nicole/Downloads/index%20(10).html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -316,9 +316,17 @@ async function createCellar() {
   const name = document.getElementById('mc-name').value.trim();
   if (!name) return;
   const desc = document.getElementById('mc-desc').value.trim();
-  await SB.insert(session.access_token, 'cellars', { name, description: desc, user_id: session.user.id });
-  closeModal();
-  renderCellars();
+  try {
+    const result = await SB.insert(session.access_token, 'cellars', { name, description: desc, user_id: session.user.id });
+    if (result && result.code) {
+      alert('Error creating cellar: ' + (result.message || result.code) + '\n\nIf you just signed up, please confirm your email first.');
+      return;
+    }
+    closeModal();
+    renderCellars();
+  } catch(e) {
+    alert('Error: ' + e.message);
+  }
 }
 
 function signOut() { saveSession(null); renderAuth('login'); }
