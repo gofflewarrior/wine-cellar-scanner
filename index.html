@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<!-- saved from url=(0044)file:///C:/Users/Nicole/Downloads/index.html -->
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
+<html lang="en">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cave à vin</title>
 <style>
@@ -41,13 +41,13 @@ textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8p
   <label class="pick-btn" for="filePicker">
     📷 &nbsp;Add photos or video
   </label>
-  <input type="file" id="filePicker" accept="image/*,video/*" multiple="" style="position:fixed;top:-100px;left:-100px;width:1px;height:1px;opacity:0;">
+  <input type="file" id="filePicker" accept="image/*,video/*" multiple style="position:fixed;top:-100px;left:-100px;width:1px;height:1px;opacity:0;">
 
   <div id="thumbs"></div>
 
   <textarea id="notes" rows="2" placeholder="Notes (optional) — e.g. top shelf, bin A3…"></textarea>
 
-  <button id="analyseBtn" disabled="">Analyse cellar</button>
+  <button id="analyseBtn" disabled>Analyse cellar</button>
 
   <div id="status" style="display:none"></div>
   <div id="error" style="display:none"></div>
@@ -173,13 +173,13 @@ ${notes ? '\nContext: ' + notes : ''}` });
   setStatus('Analysing with AI…');
 
   try {
-    const resp = await fetch('https://wine-proxy.nicole-lew.workers.dev/', {
+    const resp = await fetch('https://api.cellarlegacy.com/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 4000, messages: [{ role: 'user', content }] })
     });
     const data = await resp.json();
-    if (!resp.ok) throw new Error(data.error?.message || JSON.stringify(data));
+    if (!resp.ok) throw new Error('HTTP ' + resp.status + ': ' + (data.error?.message || JSON.stringify(data)));
     const raw = data.content.map(b => b.text || '').join('').trim().replace(/```json|```/g, '').trim();
     wines = JSON.parse(raw);
     if (!Array.isArray(wines)) wines = [wines];
@@ -187,7 +187,7 @@ ${notes ? '\nContext: ' + notes : ''}` });
     clearStatus();
     setStatus('Found ' + wines.length + ' wine' + (wines.length !== 1 ? 's' : '') + '. Ready to export.');
   } catch(e) {
-    showError(e.message || 'Analysis failed. Please retry.');
+    showError('Error: ' + (e.message || JSON.stringify(e)));
     clearStatus();
   }
   analyseBtn.disabled = false;
@@ -241,6 +241,5 @@ function dl(content, name, mime) {
   a.download = name; document.body.appendChild(a); a.click(); document.body.removeChild(a);
 }
 </script>
-
-
-</body></html>
+</body>
+</html>
