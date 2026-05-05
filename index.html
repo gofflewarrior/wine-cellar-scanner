@@ -174,7 +174,7 @@ ${notes ? '\nContext: ' + notes : ''}` });
   setStatus('Analysing with AI…');
 
   try {
-    const resp = await fetch('https://wine-proxy.nicole-lew.workers.dev/', {
+    const resp = await fetch('https://api.cellarlegacy.com/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 4000, messages: [{ role: 'user', content }] })
