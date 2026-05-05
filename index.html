@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
+<!-- saved from url=(0041)file:///Users/nicole/Downloads/index.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cave à vin</title>
 <style>
@@ -37,17 +37,20 @@ textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8p
 <div class="app">
   <h1>Cave à vin</h1>
   <p class="sub">Scan your cellar — extract producers, vintages &amp; condition</p>
+  <div style="background:#fff8e6;border:1px solid #f0d080;border-radius:8px;padding:12px 14px;margin-bottom:20px;font-size:13px;color:#7a5c00;line-height:1.6;">
+    <strong>📡 Connection tip:</strong> If analysis fails with an error, please enable a VPN and try again. A free VPN app like <strong>Proton VPN</strong> or <strong>Windscribe</strong> works well.
+  </div>
 
   <label class="pick-btn" for="filePicker">
     📷 &nbsp;Add photos or video
   </label>
-  <input type="file" id="filePicker" accept="image/*,video/*" multiple style="position:fixed;top:-100px;left:-100px;width:1px;height:1px;opacity:0;">
+  <input type="file" id="filePicker" accept="image/*,video/*" multiple="" style="position:fixed;top:-100px;left:-100px;width:1px;height:1px;opacity:0;">
 
   <div id="thumbs"></div>
 
   <textarea id="notes" rows="2" placeholder="Notes (optional) — e.g. top shelf, bin A3…"></textarea>
 
-  <button id="analyseBtn" disabled>Analyse cellar</button>
+  <button id="analyseBtn" disabled="">Analyse cellar</button>
 
   <div id="status" style="display:none"></div>
   <div id="error" style="display:none"></div>
@@ -188,7 +191,12 @@ ${notes ? '\nContext: ' + notes : ''}` });
     clearStatus();
     setStatus('Found ' + wines.length + ' wine' + (wines.length !== 1 ? 's' : '') + '. Ready to export.');
   } catch(e) {
-    showError('Error: ' + (e.message || JSON.stringify(e)));
+    const msg = e.message || JSON.stringify(e);
+    if (msg.includes('403') || msg.includes('not allowed') || msg.includes('forbidden') || msg.includes('failed')) {
+      showError('Analysis failed. If this keeps happening, try enabling a VPN (e.g. Proton VPN or Windscribe) and retry.');
+    } else {
+      showError('Error: ' + msg);
+    }
     clearStatus();
   }
   analyseBtn.disabled = false;
@@ -242,5 +250,6 @@ function dl(content, name, mime) {
   a.download = name; document.body.appendChild(a); a.click(); document.body.removeChild(a);
 }
 </script>
-</body>
-</html>
+
+
+</body></html>
