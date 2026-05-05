@@ -1,103 +1,365 @@
 <!DOCTYPE html>
-<!-- saved from url=(0041)file:///Users/nicole/Downloads/index.html -->
+<!-- saved from url=(0047)file:///Users/nicole/Downloads/index%20(1).html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cave à vin</title>
+<title>Cellar Legacy</title>
+<script src="./index_files/supabase-js@2"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f7f5f2; color: #1a1916; min-height: 100vh; }
-.app { max-width: 480px; margin: 0 auto; padding: 20px 16px 60px; }
-h1 { font-size: 26px; font-weight: 600; margin-bottom: 4px; }
-.sub { font-size: 13px; color: #666; margin-bottom: 24px; }
-.pick-btn { display: block; width: 100%; padding: 18px; background: #fff; border: 1.5px solid #ccc; border-radius: 12px; font-size: 15px; font-weight: 500; color: #1a1916; text-align: center; cursor: pointer; margin-bottom: 12px; }
-.pick-btn:active { background: #f0ede8; }
-#thumbs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-.thumb { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; border: 1px solid #ddd; }
-textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; font-family: inherit; resize: none; background: #fff; margin-bottom: 12px; }
-#analyseBtn { display: block; width: 100%; padding: 16px; background: #1a1916; color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 16px; }
-#analyseBtn:disabled { opacity: 0.4; cursor: default; }
-#analyseBtn:active { opacity: 0.8; }
-.status { padding: 12px; background: #eee; border-radius: 8px; font-size: 13px; color: #555; margin-bottom: 12px; text-align: center; }
-.error { padding: 12px; background: #fdf0f0; border: 1px solid #f5c1c1; border-radius: 8px; font-size: 13px; color: #9b2c2c; margin-bottom: 12px; }
-.card { background: #fff; border: 1px solid #e0ddd8; border-radius: 12px; padding: 16px; margin-bottom: 10px; }
-.card-producer { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
-.card-app { font-size: 13px; color: #888; font-style: italic; margin-bottom: 10px; }
-.card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-.card-field label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: #aaa; margin-bottom: 2px; }
-.card-field span { font-size: 13px; font-weight: 500; }
-.card-notes { font-size: 12px; color: #888; border-top: 1px solid #eee; padding-top: 8px; margin-top: 4px; }
-.ws-link { display: inline-block; margin-top: 10px; font-size: 12px; color: #555; border: 1px solid #ddd; border-radius: 6px; padding: 5px 10px; text-decoration: none; }
-.vintage-badge { display: inline-block; font-size: 11px; font-weight: 600; background: #f0ede8; border-radius: 5px; padding: 2px 7px; margin-left: 8px; vertical-align: middle; }
-.export-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
-.export-btn { padding: 12px; background: #fff; border: 1px solid #ccc; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; }
+.app { max-width: 480px; margin: 0 auto; padding: 20px 16px 80px; }
+
+/* Auth */
+.auth-box { background: #fff; border: 1px solid #e0ddd8; border-radius: 16px; padding: 28px 24px; margin-top: 40px; }
+.auth-title { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+.auth-sub { font-size: 13px; color: #888; margin-bottom: 24px; }
+.auth-tabs { display: flex; gap: 0; margin-bottom: 20px; border: 1px solid #e0ddd8; border-radius: 8px; overflow: hidden; }
+.auth-tab { flex: 1; padding: 10px; font-size: 13px; font-weight: 500; background: #f7f5f2; border: none; cursor: pointer; color: #888; }
+.auth-tab.active { background: #1a1916; color: #fff; }
+.field-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+input[type=email], input[type=password], input[type=text] { width: 100%; padding: 11px 13px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; font-family: inherit; background: #fafafa; outline: none; }
+input:focus { border-color: #1a1916; background: #fff; }
+.btn-primary { width: 100%; padding: 13px; background: #1a1916; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
+.btn-primary:active { opacity: 0.85; }
+.btn-primary:disabled { opacity: 0.4; cursor: default; }
+.btn-google { width: 100%; padding: 12px; background: #fff; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.btn-google:active { background: #f5f5f5; }
+.divider { text-align: center; font-size: 12px; color: #bbb; margin: 12px 0; }
+.auth-err { font-size: 12px; color: #c0392b; background: #fdf0f0; border: 1px solid #f5c1c1; border-radius: 6px; padding: 8px 12px; margin-bottom: 10px; }
+
+/* Header */
+.top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #e0ddd8; }
+.app-name { font-size: 20px; font-weight: 700; }
+.user-menu { display: flex; align-items: center; gap: 10px; }
+.user-email { font-size: 11px; color: #888; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.btn-signout { font-size: 12px; color: #888; background: none; border: 1px solid #ddd; border-radius: 6px; padding: 5px 10px; cursor: pointer; }
+
+/* Cellars */
+.section-title { font-size: 18px; font-weight: 700; margin-bottom: 14px; }
+.cellar-card { background: #fff; border: 1px solid #e0ddd8; border-radius: 12px; padding: 16px; margin-bottom: 10px; cursor: pointer; transition: border-color 0.15s; }
+.cellar-card:active { border-color: #1a1916; }
+.cellar-name { font-size: 16px; font-weight: 600; margin-bottom: 3px; }
+.cellar-meta { font-size: 12px; color: #888; }
+.btn-add { width: 100%; padding: 13px; background: #fff; border: 1.5px dashed #ccc; border-radius: 10px; font-size: 14px; font-weight: 500; color: #888; cursor: pointer; margin-bottom: 20px; }
+.btn-add:active { background: #f7f5f2; }
+
+/* Modal */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: flex-end; justify-content: center; z-index: 100; }
+.modal { background: #fff; border-radius: 16px 16px 0 0; padding: 24px 20px 40px; width: 100%; max-width: 480px; }
+.modal-title { font-size: 17px; font-weight: 700; margin-bottom: 16px; }
+.modal-actions { display: flex; gap: 8px; margin-top: 14px; }
+.btn-secondary { flex: 1; padding: 12px; background: #f7f5f2; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; }
+.btn-danger { flex: 1; padding: 12px; background: #fdf0f0; border: 1px solid #f5c1c1; border-radius: 8px; font-size: 14px; font-weight: 500; color: #c0392b; cursor: pointer; }
+
+/* Cellar view */
+.back-btn { display: flex; align-items: center; gap: 6px; font-size: 14px; color: #888; background: none; border: none; cursor: pointer; margin-bottom: 16px; padding: 0; }
+.cellar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.cellar-title { font-size: 22px; font-weight: 700; }
+.cellar-actions { display: flex; gap: 8px; }
+.icon-btn { width: 34px; height: 34px; background: #fff; border: 1px solid #e0ddd8; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; }
+
+/* Scan */
+.scan-section { background: #fff; border: 1px solid #e0ddd8; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+.scan-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+.pick-label { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 13px; background: #f7f5f2; border: 1.5px dashed #ccc; border-radius: 8px; font-size: 13px; font-weight: 500; color: #555; cursor: pointer; margin-bottom: 10px; }
+.thumbs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.thumb { width: 64px; height: 64px; border-radius: 6px; object-fit: cover; border: 1px solid #ddd; }
+.thumb-video { width: 64px; height: 64px; border-radius: 6px; background: #eee; display: flex; align-items: center; justify-content: center; font-size: 24px; border: 1px solid #ddd; }
+.scan-btn { width: 100%; padding: 12px; background: #1a1916; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.scan-btn:disabled { opacity: 0.4; cursor: default; }
+.vpn-notice { background: #fff8e6; border: 1px solid #f0d080; border-radius: 8px; padding: 10px 12px; font-size: 12px; color: #7a5c00; line-height: 1.6; margin-bottom: 10px; }
+
+/* Status */
+.status { padding: 10px 12px; background: #f0f0f0; border-radius: 8px; font-size: 13px; color: #555; text-align: center; margin-bottom: 10px; }
+.error { padding: 10px 12px; background: #fdf0f0; border: 1px solid #f5c1c1; border-radius: 8px; font-size: 13px; color: #9b2c2c; margin-bottom: 10px; }
+
+/* Wine list */
+.wine-count { font-size: 12px; color: #888; margin-bottom: 12px; }
+.wine-card { background: #fff; border: 1px solid #e0ddd8; border-radius: 12px; padding: 14px; margin-bottom: 8px; }
+.wine-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 4px; }
+.wine-producer { font-size: 15px; font-weight: 600; flex: 1; line-height: 1.3; }
+.wine-vintage { font-size: 11px; font-weight: 600; background: #f0ede8; border-radius: 5px; padding: 2px 7px; margin-left: 8px; flex-shrink: 0; }
+.wine-app { font-size: 12px; color: #888; font-style: italic; margin-bottom: 8px; }
+.wine-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px; }
+.wine-field label { display: block; font-size: 9px; text-transform: uppercase; letter-spacing: .06em; color: #bbb; margin-bottom: 1px; }
+.wine-field span { font-size: 12px; font-weight: 500; }
+.wine-notes-text { font-size: 11px; color: #888; border-top: 1px solid #eee; padding-top: 6px; margin-top: 4px; line-height: 1.5; }
+.wine-card-actions { display: flex; gap: 6px; margin-top: 8px; border-top: 1px solid #eee; padding-top: 8px; }
+.wine-action-btn { flex: 1; padding: 7px; background: #f7f5f2; border: 1px solid #e0ddd8; border-radius: 6px; font-size: 11px; font-weight: 500; cursor: pointer; text-align: center; }
+.wine-action-btn.danger { color: #c0392b; background: #fdf0f0; border-color: #f5c1c1; }
+.ws-link { font-size: 11px; color: #555; border: 1px solid #ddd; border-radius: 5px; padding: 4px 8px; text-decoration: none; display: inline-block; margin-top: 6px; }
+.cond-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 3px; vertical-align: middle; }
+.tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+.tab { padding: 7px 14px; border-radius: 20px; font-size: 13px; font-weight: 500; border: 1px solid #e0ddd8; background: #fff; cursor: pointer; color: #888; }
+.tab.active { background: #1a1916; color: #fff; border-color: #1a1916; }
+.export-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.export-btn { padding: 10px; background: #fff; border: 1px solid #ddd; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; }
+.empty { text-align: center; padding: 32px 16px; color: #bbb; font-size: 14px; }
+textarea.edit-field { width: 100%; padding: 9px 11px; border: 1px solid #ddd; border-radius: 7px; font-size: 13px; font-family: inherit; resize: none; min-height: 60px; margin-bottom: 8px; }
+select.edit-field { width: 100%; padding: 9px 11px; border: 1px solid #ddd; border-radius: 7px; font-size: 13px; font-family: inherit; background: #fff; margin-bottom: 8px; }
+.edit-label { font-size: 11px; color: #888; display: block; margin-bottom: 3px; }
 </style>
 </head>
 <body>
-<div class="app">
-  <h1>Cave à vin</h1>
-  <p class="sub">Scan your cellar — extract producers, vintages &amp; condition</p>
-  <div style="background:#fff8e6;border:1px solid #f0d080;border-radius:8px;padding:12px 14px;margin-bottom:20px;font-size:13px;color:#7a5c00;line-height:1.6;">
-    <strong>📡 Connection tip:</strong> If analysis fails with an error, please enable a VPN and try again. A free VPN app like <strong>Proton VPN</strong> or <strong>Windscribe</strong> works well.
-  </div>
-
-  <label class="pick-btn" for="filePicker">
-    📷 &nbsp;Add photos or video
-  </label>
-  <input type="file" id="filePicker" accept="image/*,video/*" multiple="" style="position:fixed;top:-100px;left:-100px;width:1px;height:1px;opacity:0;">
-
-  <div id="thumbs"></div>
-
-  <textarea id="notes" rows="2" placeholder="Notes (optional) — e.g. top shelf, bin A3…"></textarea>
-
-  <button id="analyseBtn" disabled="">Analyse cellar</button>
-
-  <div id="status" style="display:none"></div>
-  <div id="error" style="display:none"></div>
-  <div id="results"></div>
-</div>
+<div class="app" id="app">
+    <div class="auth-box">
+      <div class="auth-title">🍷 Cellar Legacy</div>
+      <div class="auth-sub">Your personal wine cellar manager</div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="renderAuth(&#39;login&#39;)">Sign in</button>
+        <button class="auth-tab " onclick="renderAuth(&#39;signup&#39;)">Create account</button>
+      </div>
+      <div id="auth-err"></div>
+      <div class="field-group">
+        <input type="email" id="auth-email" placeholder="Email address">
+        <input type="password" id="auth-pass" placeholder="Password">
+        
+      </div>
+      <button class="btn-primary" onclick="authSubmit(&#39;login&#39;)">Sign in</button>
+      <div class="divider">or</div>
+      <button class="btn-google" onclick="googleLogin()">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.2l6.8-6.8C35.8 2.2 30.3 0 24 0 14.8 0 6.9 5.4 3 13.3l7.9 6.1C12.8 13.2 17.9 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17z"></path><path fill="#FBBC05" d="M10.9 28.6A14.8 14.8 0 019.5 24c0-1.6.3-3.1.7-4.6L2.3 13.3A23.9 23.9 0 000 24c0 3.9.9 7.5 2.5 10.8l8.4-6.2z"></path><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.8 2.2-8.4 2.2-6.1 0-11.2-3.7-13.1-9l-7.9 6.1C6.9 42.6 14.8 48 24 48z"></path></svg>
+        Continue with Google
+      </button>
+    </div></div>
 
 <script>
-const picker = document.getElementById('filePicker');
-const thumbsEl = document.getElementById('thumbs');
-const analyseBtn = document.getElementById('analyseBtn');
-const statusEl = document.getElementById('status');
-const errorEl = document.getElementById('error');
-const resultsEl = document.getElementById('results');
-const notesEl = document.getElementById('notes');
+const SUPABASE_URL = 'https://gxucxzjwwkahccxqjhwv.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4dWN4emp3d2thaGNjeHFqaHd2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NzA0MTYsImV4cCI6MjA5MzU0NjQxNn0.v6r20dMoNn52t4PCcaRWkpmCXuHNoCf1G7e9iCtFZV4';
+const PROXY_URL = 'https://api.cellarlegacy.com/';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let files = [];
-let wines = [];
+const app = document.getElementById('app');
+let currentUser = null;
+let currentCellar = null;
+let currentWines = [];
+let scanFiles = [];
+let activeTab = 'wines';
 
-picker.addEventListener('change', function() {
-  if (!this.files || !this.files.length) return;
-  files = [...files, ...Array.from(this.files)].slice(0, 6);
-  renderThumbs();
-  analyseBtn.disabled = false;
-});
-
-function renderThumbs() {
-  thumbsEl.innerHTML = '';
-  files.forEach((f, i) => {
-    if (f.type.startsWith('image/')) {
-      const img = document.createElement('img');
-      img.className = 'thumb';
-      img.src = URL.createObjectURL(f);
-      thumbsEl.appendChild(img);
-    } else {
-      const div = document.createElement('div');
-      div.className = 'thumb';
-      div.style.cssText = 'display:flex;align-items:center;justify-content:center;background:#eee;font-size:28px;';
-      div.textContent = '🎬';
-      thumbsEl.appendChild(div);
-    }
+// ── ROUTER ──────────────────────────────────────────────
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  currentUser = session?.user || null;
+  if (currentUser) renderCellars();
+  else renderAuth();
+  sb.auth.onAuthStateChange((event, session) => {
+    currentUser = session?.user || null;
+    if (currentUser) renderCellars();
+    else renderAuth();
   });
 }
 
-function setStatus(msg) { statusEl.className = 'status'; statusEl.textContent = msg; statusEl.style.display = 'block'; }
-function clearStatus() { statusEl.style.display = 'none'; }
-function showError(msg) { errorEl.className = 'error'; errorEl.textContent = msg; errorEl.style.display = 'block'; }
-function clearError() { errorEl.style.display = 'none'; }
+// ── AUTH ─────────────────────────────────────────────────
+function renderAuth(tab = 'login') {
+  app.innerHTML = `
+    <div class="auth-box">
+      <div class="auth-title">🍷 Cellar Legacy</div>
+      <div class="auth-sub">Your personal wine cellar manager</div>
+      <div class="auth-tabs">
+        <button class="auth-tab ${tab==='login'?'active':''}" onclick="renderAuth('login')">Sign in</button>
+        <button class="auth-tab ${tab==='signup'?'active':''}" onclick="renderAuth('signup')">Create account</button>
+      </div>
+      <div id="auth-err"></div>
+      <div class="field-group">
+        <input type="email" id="auth-email" placeholder="Email address" />
+        <input type="password" id="auth-pass" placeholder="Password" />
+        ${tab==='signup' ? '<input type="password" id="auth-pass2" placeholder="Confirm password" />' : ''}
+      </div>
+      <button class="btn-primary" onclick="authSubmit('${tab}')">${tab==='login'?'Sign in':'Create account'}</button>
+      <div class="divider">or</div>
+      <button class="btn-google" onclick="googleLogin()">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.2l6.8-6.8C35.8 2.2 30.3 0 24 0 14.8 0 6.9 5.4 3 13.3l7.9 6.1C12.8 13.2 17.9 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17z"/><path fill="#FBBC05" d="M10.9 28.6A14.8 14.8 0 019.5 24c0-1.6.3-3.1.7-4.6L2.3 13.3A23.9 23.9 0 000 24c0 3.9.9 7.5 2.5 10.8l8.4-6.2z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.8 2.2-8.4 2.2-6.1 0-11.2-3.7-13.1-9l-7.9 6.1C6.9 42.6 14.8 48 24 48z"/></svg>
+        Continue with Google
+      </button>
+    </div>`;
+}
+
+async function authSubmit(tab) {
+  const email = document.getElementById('auth-email').value.trim();
+  const pass = document.getElementById('auth-pass').value;
+  const errEl = document.getElementById('auth-err');
+  errEl.innerHTML = '';
+  if (!email || !pass) { errEl.innerHTML = '<div class="auth-err">Please enter email and password.</div>'; return; }
+  if (tab === 'signup') {
+    const pass2 = document.getElementById('auth-pass2').value;
+    if (pass !== pass2) { errEl.innerHTML = '<div class="auth-err">Passwords do not match.</div>'; return; }
+    const { error } = await sb.auth.signUp({ email, password: pass });
+    if (error) { errEl.innerHTML = `<div class="auth-err">${error.message}</div>`; return; }
+    errEl.innerHTML = '<div class="auth-err" style="color:#1a7a4a;background:#f0fdf4;border-color:#a7f3d0;">Account created! Check your email to confirm.</div>';
+  } else {
+    const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+    if (error) { errEl.innerHTML = `<div class="auth-err">${error.message}</div>`; }
+  }
+}
+
+async function googleLogin() {
+  await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href } });
+}
+
+// ── CELLARS ──────────────────────────────────────────────
+async function renderCellars() {
+  currentCellar = null; scanFiles = [];
+  app.innerHTML = `
+    <div class="top-bar">
+      <div class="app-name">🍷 Cellar Legacy</div>
+      <div class="user-menu">
+        <span class="user-email">${currentUser.email || ''}</span>
+        <button class="btn-signout" onclick="signOut()">Sign out</button>
+      </div>
+    </div>
+    <div class="section-title">My Cellars</div>
+    <button class="btn-add" onclick="showAddCellar()">+ New cellar</button>
+    <div id="cellar-list"><div class="empty">Loading…</div></div>`;
+  await loadCellars();
+}
+
+async function loadCellars() {
+  const { data, error } = await sb.from('cellars').select('*, wines(count)').eq('user_id', currentUser.id).order('created_at');
+  const el = document.getElementById('cellar-list');
+  if (error || !data.length) { el.innerHTML = '<div class="empty">No cellars yet. Create one to get started.</div>'; return; }
+  el.innerHTML = data.map(c => `
+    <div class="cellar-card" onclick="openCellar('${c.id}','${escHtml(c.name)}')">
+      <div class="cellar-name">${escHtml(c.name)}</div>
+      <div class="cellar-meta">${c.description ? escHtml(c.description) + ' · ' : ''}${c.wines[0].count} wines</div>
+    </div>`).join('');
+}
+
+function showAddCellar() {
+  showModal(`
+    <div class="modal-title">New cellar</div>
+    <label class="edit-label">Name</label>
+    <input type="text" id="mc-name" placeholder="e.g. Burgundy Collection" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:7px;font-size:14px;margin-bottom:8px;" />
+    <label class="edit-label">Description (optional)</label>
+    <input type="text" id="mc-desc" placeholder="e.g. Top shelf reds" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:7px;font-size:14px;margin-bottom:4px;" />
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" style="flex:1;margin:0;" onclick="createCellar()">Create</button>
+    </div>`);
+}
+
+async function createCellar() {
+  const name = document.getElementById('mc-name').value.trim();
+  if (!name) return;
+  const { error } = await sb.from('cellars').insert({ name, description: document.getElementById('mc-desc').value.trim(), user_id: currentUser.id });
+  if (!error) { closeModal(); renderCellars(); }
+}
+
+async function signOut() { await sb.auth.signOut(); }
+
+// ── CELLAR VIEW ──────────────────────────────────────────
+async function openCellar(id, name) {
+  currentCellar = { id, name };
+  scanFiles = []; activeTab = 'wines';
+  app.innerHTML = `
+    <button class="back-btn" onclick="renderCellars()">← All cellars</button>
+    <div class="cellar-header">
+      <div class="cellar-title">${escHtml(name)}</div>
+      <div class="cellar-actions">
+        <div class="icon-btn" onclick="showRenameCellar()" title="Rename">✏️</div>
+        <div class="icon-btn" onclick="confirmDeleteCellar()" title="Delete">🗑️</div>
+      </div>
+    </div>
+    <div class="vpn-notice">📡 If analysis fails, enable a VPN (e.g. <strong>Proton VPN</strong>) and retry.</div>
+    <div class="scan-section">
+      <div class="scan-title">📷 Scan wines</div>
+      <label class="pick-label" for="fp">📷 Add photos or video</label>
+      <input type="file" id="fp" accept="image/*,video/*" multiple style="position:fixed;top:-100px;left:-100px;width:1px;height:1px;opacity:0;">
+      <div class="thumbs" id="thumbs"></div>
+      <textarea id="scan-notes" placeholder="Notes (optional) — e.g. top shelf, bin A3…" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;font-size:13px;font-family:inherit;resize:none;margin-bottom:8px;" rows="2"></textarea>
+      <button class="scan-btn" id="scan-btn" disabled onclick="doScan()">Analyse &amp; add to cellar</button>
+    </div>
+    <div id="scan-status"></div>
+    <div class="tabs">
+      <button class="tab active" id="tab-wines" onclick="switchTab('wines')">Wines</button>
+      <button class="tab" id="tab-export" onclick="switchTab('export')">Export</button>
+    </div>
+    <div id="wine-count" class="wine-count"></div>
+    <div id="wine-list"><div class="empty">Loading…</div></div>`;
+
+  document.getElementById('fp').addEventListener('change', function() {
+    if (!this.files || !this.files.length) return;
+    scanFiles = [...scanFiles, ...Array.from(this.files)].slice(0, 6);
+    renderThumbs();
+    document.getElementById('scan-btn').disabled = false;
+  });
+
+  await loadWines();
+}
+
+function switchTab(tab) {
+  activeTab = tab;
+  document.getElementById('tab-wines').className = 'tab' + (tab==='wines'?' active':'');
+  document.getElementById('tab-export').className = 'tab' + (tab==='export'?' active':'');
+  renderWineList();
+}
+
+async function loadWines() {
+  const { data, error } = await sb.from('wines').select('*').eq('cellar_id', currentCellar.id).order('created_at', { ascending: false });
+  currentWines = data || [];
+  renderWineList();
+}
+
+function renderWineList() {
+  const countEl = document.getElementById('wine-count');
+  const listEl = document.getElementById('wine-list');
+  if (!countEl || !listEl) return;
+
+  if (activeTab === 'export') {
+    if (!currentWines.length) { listEl.innerHTML = '<div class="empty">No wines to export yet.</div>'; countEl.textContent = ''; return; }
+    countEl.textContent = '';
+    listEl.innerHTML = `<div class="export-row">
+      <button class="export-btn" onclick="exportCSV()">Download CSV</button>
+      <button class="export-btn" onclick="exportJSON()">Download JSON</button>
+    </div>`;
+    return;
+  }
+
+  if (!currentWines.length) { listEl.innerHTML = '<div class="empty">No wines yet. Scan some bottles to get started.</div>'; countEl.textContent = ''; return; }
+  countEl.textContent = `${currentWines.length} wine${currentWines.length!==1?'s':''} in this cellar`;
+  listEl.innerHTML = currentWines.map(w => wineCardHTML(w)).join('');
+}
+
+function wineCardHTML(w) {
+  const dot = condDot(w.condition);
+  const q = encodeURIComponent([w.producer, w.vintage, w.appellation].filter(Boolean).join(' '));
+  return `<div class="wine-card" id="wc-${w.id}">
+    <div class="wine-card-top">
+      <div class="wine-producer">${escHtml(w.producer||'Unknown')}</div>
+      ${w.vintage ? `<span class="wine-vintage">${escHtml(w.vintage)}</span>` : ''}
+    </div>
+    ${w.appellation ? `<div class="wine-app">${escHtml(w.appellation)}</div>` : ''}
+    <div class="wine-grid">
+      <div class="wine-field"><label>Varietal</label><span>${escHtml(w.varietal||'—')}</span></div>
+      <div class="wine-field"><label>Condition</label><span>${dot}${escHtml(w.condition||'—')}</span></div>
+      <div class="wine-field"><label>Format</label><span>${escHtml(w.format||'—')}</span></div>
+      <div class="wine-field"><label>Quantity</label><span>${w.quantity??'—'}</span></div>
+    </div>
+    ${w.notes ? `<div class="wine-notes-text">${escHtml(w.notes)}</div>` : ''}
+    <a class="ws-link" href="https://www.wine-searcher.com/find/${q}" target="_blank">Search price ↗</a>
+    <div class="wine-card-actions">
+      <button class="wine-action-btn" onclick="editWine('${w.id}')">Edit</button>
+      <button class="wine-action-btn" onclick="moveWine('${w.id}')">Move</button>
+      <button class="wine-action-btn danger" onclick="deleteWine('${w.id}')">Delete</button>
+    </div>
+  </div>`;
+}
+
+function condDot(c) {
+  const s = (c||'').toLowerCase();
+  const col = s.includes('excellent')?'#1D9E75':s.includes('good')?'#639922':s.includes('fair')?'#BA7517':s.includes('poor')?'#E24B4A':'#bbb';
+  return `<span class="cond-dot" style="background:${col}"></span>`;
+}
+
+// ── SCAN ─────────────────────────────────────────────────
+function renderThumbs() {
+  const el = document.getElementById('thumbs');
+  if (!el) return;
+  el.innerHTML = scanFiles.map(f => f.type.startsWith('video/')
+    ? `<div class="thumb-video">🎬</div>`
+    : `<img class="thumb" src="${URL.createObjectURL(f)}" />`).join('');
+}
 
 async function resizeImage(file) {
   return new Promise((resolve, reject) => {
@@ -105,150 +367,247 @@ async function resizeImage(file) {
     img.onload = () => {
       const MAX = 1024;
       let w = img.width, h = img.height;
-      if (w > MAX || h > MAX) {
-        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
-        else { w = Math.round(w * MAX / h); h = MAX; }
-      }
-      const canvas = document.createElement('canvas');
-      canvas.width = w; canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      let q = 0.7;
-      const shrink = () => {
-        const b64 = canvas.toDataURL('image/jpeg', q).split(',')[1];
-        const bytes = Math.ceil(b64.length * 3 / 4);
-        if (bytes > 1000000 && q > 0.3) { q -= 0.1; shrink(); }
-        else resolve(b64);
+      if (w > MAX || h > MAX) { if (w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;} }
+      const c = document.createElement('canvas');
+      c.width=w; c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      let q=0.75;
+      const shrink=()=>{
+        const b64=c.toDataURL('image/jpeg',q).split(',')[1];
+        if(b64.length*0.75>1000000&&q>0.3){q-=0.1;shrink();}else resolve(b64);
       };
       shrink();
     };
-    img.onerror = reject;
-    img.src = URL.createObjectURL(file);
+    img.onerror=reject;
+    img.src=URL.createObjectURL(file);
   });
 }
 
 async function getVideoFrame(file) {
-  return new Promise((resolve) => {
-    const video = document.createElement('video');
-    video.muted = true;
-    video.src = URL.createObjectURL(file);
-    video.currentTime = 1;
-    video.addEventListener('seeked', () => {
-      const c = document.createElement('canvas');
-      c.width = video.videoWidth || 640; c.height = video.videoHeight || 480;
-      c.getContext('2d').drawImage(video, 0, 0, c.width, c.height);
-      resolve(c.toDataURL('image/jpeg', 0.8).split(',')[1]);
-    }, { once: true });
-    video.load();
+  return new Promise(res=>{
+    const v=document.createElement('video');
+    v.muted=true; v.src=URL.createObjectURL(file); v.currentTime=1;
+    v.addEventListener('seeked',()=>{
+      const c=document.createElement('canvas');
+      c.width=v.videoWidth||640; c.height=v.videoHeight||480;
+      c.getContext('2d').drawImage(v,0,0,c.width,c.height);
+      res(c.toDataURL('image/jpeg',0.75).split(',')[1]);
+    },{once:true});
+    v.load();
   });
 }
 
-analyseBtn.addEventListener('click', async () => {
-  if (!files.length) return;
-  analyseBtn.disabled = true;
-  clearError();
-  resultsEl.innerHTML = '';
+function setStatus(msg, isErr=false) {
+  const el = document.getElementById('scan-status');
+  if (!el) return;
+  el.innerHTML = msg ? `<div class="${isErr?'error':'status'}">${msg}</div>` : '';
+}
+
+async function doScan() {
+  if (!scanFiles.length) return;
+  const btn = document.getElementById('scan-btn');
+  btn.disabled = true;
   setStatus('Preparing images…');
 
   const content = [];
-  for (const f of files) {
+  for (const f of scanFiles) {
     try {
       const b64 = f.type.startsWith('video/') ? await getVideoFrame(f) : await resizeImage(f);
       const mt = f.type.startsWith('video/') ? 'image/jpeg' : f.type;
-      content.push({ type: 'image', source: { type: 'base64', media_type: mt, data: b64 } });
-    } catch(e) { console.error(e); }
+      content.push({type:'image',source:{type:'base64',media_type:mt,data:b64}});
+    } catch(e){}
   }
 
-  if (!content.length) { showError('Could not read images. Please try again.'); analyseBtn.disabled = false; clearStatus(); return; }
+  if (!content.length) { setStatus('Could not read images.', true); btn.disabled=false; return; }
 
-  const notes = notesEl.value.trim();
-  content.push({ type: 'text', text: `You are a master sommelier. Analyse these ${content.length} cellar image(s) and extract every visible wine bottle or label.
+  const notes = (document.getElementById('scan-notes')||{}).value || '';
+  content.push({type:'text',text:`You are a master sommelier. Analyse these ${content.length} cellar image(s).
 
 Return ONLY a raw JSON array (no markdown, no backticks) where each object has:
-- producer: winery/domaine/château name
-- vintage: year as string or null
-- appellation: region/AOC or null
-- varietal: grape variety or wine type
-- condition: "Excellent", "Good", "Fair", "Poor", or "Unknown"
-- format: bottle size or null
-- quantity: integer count visible or null
-- notes: observations or null
-${notes ? '\nContext: ' + notes : ''}` });
+- producer, vintage (string or null), appellation (or null), varietal, condition ("Excellent"/"Good"/"Fair"/"Poor"/"Unknown"), format (or null), quantity (integer or null), notes (or null)
+${notes?'\nContext: '+notes:''}`});
 
   setStatus('Analysing with AI…');
 
   try {
-    const resp = await fetch('https://api.cellarlegacy.com/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 4000, messages: [{ role: 'user', content }] })
+    const resp = await fetch(PROXY_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,messages:[{role:'user',content}]})
     });
     const data = await resp.json();
-    if (!resp.ok) throw new Error('HTTP ' + resp.status + ': ' + (data.error?.message || JSON.stringify(data)));
-    const raw = data.content.map(b => b.text || '').join('').trim().replace(/```json|```/g, '').trim();
-    wines = JSON.parse(raw);
-    if (!Array.isArray(wines)) wines = [wines];
-    renderResults();
-    clearStatus();
-    setStatus('Found ' + wines.length + ' wine' + (wines.length !== 1 ? 's' : '') + '. Ready to export.');
+    if (!resp.ok) throw new Error(data.error?.message||JSON.stringify(data));
+    const raw = data.content.map(b=>b.text||'').join('').trim().replace(/```json|```/g,'').trim();
+    const wines = JSON.parse(raw);
+    const arr = Array.isArray(wines)?wines:[wines];
+
+    // Save to Supabase
+    const rows = arr.map(w=>({...w, cellar_id:currentCellar.id, user_id:currentUser.id}));
+    const {error} = await sb.from('wines').insert(rows);
+    if (error) throw new Error(error.message);
+
+    setStatus(`✓ Added ${arr.length} wine${arr.length!==1?'s':''} to cellar.`);
+    scanFiles = [];
+    document.getElementById('thumbs').innerHTML = '';
+    document.getElementById('scan-notes').value = '';
+    btn.disabled = true;
+    await loadWines();
   } catch(e) {
-    const msg = e.message || JSON.stringify(e);
-    if (msg.includes('403') || msg.includes('not allowed') || msg.includes('forbidden') || msg.includes('failed')) {
-      showError('Analysis failed. If this keeps happening, try enabling a VPN (e.g. Proton VPN or Windscribe) and retry.');
+    const msg = e.message||'';
+    if (msg.includes('403')||msg.includes('not allowed')||msg.includes('failed')) {
+      setStatus('Analysis failed. Please enable a VPN (e.g. Proton VPN) and retry.', true);
     } else {
-      showError('Error: ' + msg);
+      setStatus('Error: '+msg, true);
     }
-    clearStatus();
+    btn.disabled = false;
   }
-  analyseBtn.disabled = false;
-});
-
-function condDot(c) {
-  const s = (c||'').toLowerCase();
-  const col = s.includes('excellent') ? '#1D9E75' : s.includes('good') ? '#639922' : s.includes('fair') ? '#BA7517' : s.includes('poor') ? '#E24B4A' : '#aaa';
-  return `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${col};margin-right:4px;vertical-align:middle;"></span>`;
 }
 
-function renderResults() {
-  resultsEl.innerHTML = '';
-  if (!wines.length) { resultsEl.innerHTML = '<p style="text-align:center;color:#aaa;padding:20px;">No wines detected.</p>'; return; }
-  wines.forEach(w => {
-    const q = encodeURIComponent([w.producer, w.vintage, w.appellation].filter(Boolean).join(' '));
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.innerHTML = `
-      <div class="card-producer">${w.producer || '—'}<span class="vintage-badge">${w.vintage || '?'}</span></div>
-      ${w.appellation ? `<div class="card-app">${w.appellation}</div>` : ''}
-      <div class="card-grid">
-        <div class="card-field"><label>Varietal</label><span>${w.varietal || '—'}</span></div>
-        <div class="card-field"><label>Condition</label><span>${condDot(w.condition)}${w.condition || '—'}</span></div>
-        <div class="card-field"><label>Format</label><span>${w.format || '—'}</span></div>
-        <div class="card-field"><label>Qty visible</label><span>${w.quantity ?? '—'}</span></div>
-      </div>
-      ${w.notes ? `<div class="card-notes">${w.notes}</div>` : ''}
-      <a class="ws-link" href="https://www.wine-searcher.com/find/${q}" target="_blank">Search price on Wine-Searcher ↗</a>
-    `;
-    resultsEl.appendChild(card);
-  });
-  const row = document.createElement('div');
-  row.className = 'export-row';
-  row.innerHTML = `<button class="export-btn" id="csvBtn">Download CSV</button><button class="export-btn" id="jsonBtn">Download JSON</button>`;
-  resultsEl.appendChild(row);
-  document.getElementById('csvBtn').onclick = exportCSV;
-  document.getElementById('jsonBtn').onclick = exportJSON;
+// ── EDIT WINE ────────────────────────────────────────────
+async function editWine(id) {
+  const w = currentWines.find(x=>x.id===id);
+  if (!w) return;
+  showModal(`
+    <div class="modal-title">Edit wine</div>
+    <label class="edit-label">Producer</label>
+    <input type="text" id="ew-producer" value="${escHtml(w.producer||'')}" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;font-size:13px;margin-bottom:8px;" />
+    <label class="edit-label">Vintage</label>
+    <input type="text" id="ew-vintage" value="${escHtml(w.vintage||'')}" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;font-size:13px;margin-bottom:8px;" />
+    <label class="edit-label">Appellation</label>
+    <input type="text" id="ew-appellation" value="${escHtml(w.appellation||'')}" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;font-size:13px;margin-bottom:8px;" />
+    <label class="edit-label">Varietal</label>
+    <input type="text" id="ew-varietal" value="${escHtml(w.varietal||'')}" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;font-size:13px;margin-bottom:8px;" />
+    <label class="edit-label">Condition</label>
+    <select id="ew-condition" class="edit-field">
+      ${['Excellent','Good','Fair','Poor','Unknown'].map(c=>`<option ${w.condition===c?'selected':''}>${c}</option>`).join('')}
+    </select>
+    <label class="edit-label">Format</label>
+    <input type="text" id="ew-format" value="${escHtml(w.format||'')}" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;font-size:13px;margin-bottom:8px;" />
+    <label class="edit-label">Quantity</label>
+    <input type="number" id="ew-quantity" value="${w.quantity||''}" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;font-size:13px;margin-bottom:8px;" />
+    <label class="edit-label">Notes</label>
+    <textarea class="edit-field" id="ew-notes" rows="2">${escHtml(w.notes||'')}</textarea>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" style="flex:1;margin:0;" onclick="saveWine('${id}')">Save</button>
+    </div>`);
 }
 
+async function saveWine(id) {
+  const updates = {
+    producer: document.getElementById('ew-producer').value.trim(),
+    vintage: document.getElementById('ew-vintage').value.trim(),
+    appellation: document.getElementById('ew-appellation').value.trim(),
+    varietal: document.getElementById('ew-varietal').value.trim(),
+    condition: document.getElementById('ew-condition').value,
+    format: document.getElementById('ew-format').value.trim(),
+    quantity: parseInt(document.getElementById('ew-quantity').value)||null,
+    notes: document.getElementById('ew-notes').value.trim(),
+    updated_at: new Date().toISOString()
+  };
+  const {error} = await sb.from('wines').update(updates).eq('id',id);
+  if (!error) { closeModal(); await loadWines(); }
+}
+
+// ── DELETE WINE ──────────────────────────────────────────
+function deleteWine(id) {
+  showModal(`
+    <div class="modal-title">Delete wine?</div>
+    <p style="font-size:13px;color:#888;margin-bottom:16px;">This cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-danger" onclick="confirmDeleteWine('${id}')">Delete</button>
+    </div>`);
+}
+
+async function confirmDeleteWine(id) {
+  await sb.from('wines').delete().eq('id',id);
+  closeModal();
+  await loadWines();
+}
+
+// ── MOVE WINE ────────────────────────────────────────────
+async function moveWine(id) {
+  const {data} = await sb.from('cellars').select('*').eq('user_id',currentUser.id).neq('id',currentCellar.id);
+  if (!data||!data.length) { showModal(`<div class="modal-title">No other cellars</div><p style="font-size:13px;color:#888;margin:12px 0;">Create another cellar first.</p><button class="btn-secondary" onclick="closeModal()">Close</button>`); return; }
+  showModal(`
+    <div class="modal-title">Move to cellar</div>
+    ${data.map(c=>`<div class="cellar-card" style="margin-bottom:8px;" onclick="confirmMoveWine('${id}','${c.id}')"><div class="cellar-name">${escHtml(c.name)}</div></div>`).join('')}
+    <button class="btn-secondary" style="width:100%;margin-top:4px;" onclick="closeModal()">Cancel</button>`);
+}
+
+async function confirmMoveWine(wineId, cellarId) {
+  await sb.from('wines').update({cellar_id:cellarId}).eq('id',wineId);
+  closeModal();
+  await loadWines();
+}
+
+// ── CELLAR MANAGEMENT ────────────────────────────────────
+function showRenameCellar() {
+  showModal(`
+    <div class="modal-title">Rename cellar</div>
+    <input type="text" id="rc-name" value="${escHtml(currentCellar.name)}" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:7px;font-size:14px;margin-bottom:12px;" />
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" style="flex:1;margin:0;" onclick="renameCellar()">Save</button>
+    </div>`);
+}
+
+async function renameCellar() {
+  const name = document.getElementById('rc-name').value.trim();
+  if (!name) return;
+  await sb.from('cellars').update({name}).eq('id',currentCellar.id);
+  currentCellar.name = name;
+  closeModal();
+  document.querySelector('.cellar-title').textContent = name;
+}
+
+function confirmDeleteCellar() {
+  showModal(`
+    <div class="modal-title">Delete cellar?</div>
+    <p style="font-size:13px;color:#888;margin-bottom:16px;">This will delete <strong>${escHtml(currentCellar.name)}</strong> and all its wines. This cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-danger" onclick="doDeleteCellar()">Delete</button>
+    </div>`);
+}
+
+async function doDeleteCellar() {
+  await sb.from('cellars').delete().eq('id',currentCellar.id);
+  closeModal();
+  renderCellars();
+}
+
+// ── EXPORT ───────────────────────────────────────────────
 function exportCSV() {
-  const h = ['producer','vintage','appellation','varietal','condition','format','quantity','notes'];
-  const rows = [h.join(','), ...wines.map(w => h.map(k => `"${(w[k]??'').toString().replace(/"/g,'""')}"`).join(','))].join('\n');
-  dl(rows, `cellar_${today()}.csv`, 'text/csv');
+  const h=['producer','vintage','appellation','varietal','condition','format','quantity','notes'];
+  const rows=[h.join(','),...currentWines.map(w=>h.map(k=>`"${(w[k]??'').toString().replace(/"/g,'""')}"`).join(','))].join('\n');
+  dl(rows,`${currentCellar.name}_${today()}.csv`,'text/csv');
 }
-function exportJSON() { dl(JSON.stringify(wines, null, 2), `cellar_${today()}.json`, 'application/json'); }
+function exportJSON() { dl(JSON.stringify(currentWines,null,2),`${currentCellar.name}_${today()}.json`,'application/json'); }
 function today() { return new Date().toISOString().slice(0,10); }
-function dl(content, name, mime) {
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([content], { type: mime }));
-  a.download = name; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+function dl(content,name,mime) {
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([content],{type:mime}));
+  a.download=name; document.body.appendChild(a); a.click(); document.body.removeChild(a);
 }
+
+// ── MODAL ────────────────────────────────────────────────
+function showModal(html) {
+  closeModal();
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'modal-overlay';
+  overlay.innerHTML = `<div class="modal">${html}</div>`;
+  overlay.addEventListener('click', e => { if (e.target===overlay) closeModal(); });
+  document.body.appendChild(overlay);
+}
+function closeModal() { document.getElementById('modal-overlay')?.remove(); }
+
+// ── UTILS ────────────────────────────────────────────────
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+init();
 </script>
 
 
