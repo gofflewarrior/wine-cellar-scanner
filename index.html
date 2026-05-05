@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0048)file:///Users/nicole/Downloads/index%20(10).html -->
+<!-- saved from url=(0048)file:///Users/nicole/Downloads/index%20(11).html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -133,12 +133,17 @@ class SB {
   }
 
   static async query(token, table, method='GET', body=null, filter='') {
+    const headers = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Accept': 'application/json' };
+    if (method === 'POST') headers['Prefer'] = 'return=representation';
+    if (method === 'PATCH') headers['Prefer'] = 'return=representation';
     const r = await fetch(`${SB_URL}/rest/v1/${table}${filter}`, {
-      method, headers: { ...this.headers(token), 'Prefer': method==='POST'?'return=representation':'', 'Accept': 'application/json' },
+      method, headers,
       body: body ? JSON.stringify(body) : null
     });
     if (r.status === 204) return [];
-    return r.json();
+    const data = await r.json();
+    if (!r.ok) console.error('Supabase error:', r.status, data, 'sent token:', token?.substring(0,20));
+    return data;
   }
 
   static async insert(token, table, body) {
