@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0048)file:///Users/nicole/Downloads/index%20(16).html -->
+<!-- saved from url=(0048)file:///Users/nicole/Downloads/index%20(17).html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -494,6 +494,11 @@ async function doScan() {
     const raw=data.content.map(b=>b.text||'').join('').trim().replace(/```json|```/g,'').trim();
     const wines=JSON.parse(raw);
     const arr=Array.isArray(wines)?wines:[wines];
+    // DEBUG: show what the AI returned
+    if (arr[0]) {
+      const sample = arr[0];
+      alert('AI returned for first wine:\n\nproducer: ' + (sample.producer||'?') + '\nbbox: ' + JSON.stringify(sample.bbox) + '\nimage_index: ' + sample.image_index);
+    }
     const rows=arr.map(w=>({...w,cellar_id:currentCellar.id,user_id:session.user.id}));
     for(const row of rows) await SB.insert(session.access_token,'wines',row);
     setScanStatus('Cropping bottle thumbnails…');
