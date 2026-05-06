@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0048)file:///Users/nicole/Downloads/index%20(14).html -->
+<!-- saved from url=(0048)file:///Users/nicole/Downloads/index%20(16).html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -558,9 +558,16 @@ async function uploadToStorage(blob, path) {
       },
       body: blob
     });
-    if (!r.ok) { console.error('Upload failed', r.status, await r.text()); return null; }
+    if (!r.ok) {
+      const errText = await r.text();
+      alert('Storage upload failed: ' + r.status + ' - ' + errText.substring(0, 200));
+      return null;
+    }
     return `${SB_URL}/storage/v1/object/public/wine-photos/${path}`;
-  } catch(e) { console.error('Upload error', e); return null; }
+  } catch(e) {
+    alert('Storage upload error: ' + e.message);
+    return null;
+  }
 }
 
 // ── EDIT/DELETE/MOVE WINE ────────────────────────────────
