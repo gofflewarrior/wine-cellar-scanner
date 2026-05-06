@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0048)file:///Users/nicole/Downloads/index%20(18).html -->
+<!-- saved from url=(0048)file:///Users/nicole/Downloads/index%20(19).html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -485,7 +485,7 @@ async function doScan() {
   }
   if(!content.length){setScanStatus('Could not read images.',true);document.getElementById('scan-btn').disabled=false;return;}
   const notes=(document.getElementById('scan-notes')||{}).value||'';
-  content.push({type:'text',text:`You are a master sommelier. Analyse these ${content.length} cellar image(s) where each image is normalised to 1024 pixels on its longest side.\n\nReturn ONLY a raw JSON array (no markdown, no backticks) where each object represents ONE wine bottle visible in the images and has:\n- image_index: 0-based index of which uploaded image this bottle is in\n- bbox: bounding box of just this bottle in the image as [x, y, width, height] in pixels (where 0,0 is top-left). Be tight to the bottle.\n- producer: winery/domaine/château name\n- vintage: year as string or null\n- appellation: region/AOC or null\n- varietal: grape or wine type\n- condition: "Excellent"/"Good"/"Fair"/"Poor"/"Unknown"\n- format: bottle size or null\n- quantity: integer (always 1 since each row = one bottle) or null\n- notes: observations or null\n${notes?'\nContext: '+notes:''}`});
+  content.push({type:'text',text:`You are a master sommelier. Analyse these ${content.length} cellar image(s) where each image is normalised to 1024 pixels on its longest side.\n\nReturn ONLY a raw JSON array (no markdown, no backticks) where each object represents ONE wine bottle visible in the images and has:\n- image_index: 0-based index of which uploaded image this bottle is in\n- bbox: bounding box capturing the ENTIRE bottle from neck/cork at the top down to the base at the bottom, including the full label area, as [x, y, width, height] in pixels (where 0,0 is top-left). Make sure the bottle is fully contained in the box, not cut off at the top or bottom. The box should be tall and narrow, matching the shape of a wine bottle.\n- producer: winery/domaine/château name\n- vintage: year as string or null\n- appellation: region/AOC or null\n- varietal: grape or wine type\n- condition: "Excellent"/"Good"/"Fair"/"Poor"/"Unknown"\n- format: bottle size or null\n- quantity: integer (always 1 since each row = one bottle) or null\n- notes: observations or null\n${notes?'\nContext: '+notes:''}`});
   setScanStatus('Analysing with AI…');
   try{
     const resp=await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,messages:[{role:'user',content}]})});
