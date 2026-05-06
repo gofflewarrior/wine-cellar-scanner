@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0048)file:///Users/nicole/Downloads/index%20(21).html -->
+<!-- saved from url=(0048)file:///Users/nicole/Downloads/index%20(22).html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -406,7 +406,7 @@ function wineCard(w) {
   const q = encodeURIComponent([w.producer,w.vintage,w.appellation].filter(Boolean).join(' '));
   return `<div class="wine-card">
     <div style="display:flex;gap:12px;align-items:flex-start;">
-    ${w.image_url ? `<img src="${escH(w.image_url)}" style="width:60px;height:80px;object-fit:cover;border-radius:6px;border:1px solid #e0ddd8;flex-shrink:0;" onerror="this.style.display='none'">` : ''}
+    ${w.image_url ? `<img src="${escH(w.image_url)}" style="width:60px;height:80px;object-fit:cover;border-radius:6px;border:1px solid #e0ddd8;flex-shrink:0;cursor:pointer;" onerror="this.style.display='none'" onclick="showFullImage('${escH(w.image_url)}')">` : ''}
     <div style="flex:1;min-width:0;">
     <div class="wine-top"><div class="wine-producer">${escH(w.producer||'Unknown')}</div>${w.vintage?`<span class="wine-vintage">${escH(w.vintage)}</span>`:''}</div>
     ${w.appellation?`<div class="wine-app">${escH(w.appellation)}</div>`:''}
@@ -485,7 +485,7 @@ async function doScan() {
   }
   if(!content.length){setScanStatus('Could not read images.',true);document.getElementById('scan-btn').disabled=false;return;}
   const notes=(document.getElementById('scan-notes')||{}).value||'';
-  content.push({type:'text',text:`You are a master sommelier. Analyse these ${content.length} cellar image(s) where each image is normalised to 1024 pixels on its longest side.\n\nReturn ONLY a raw JSON array (no markdown, no backticks) where each object represents ONE wine bottle visible in the images and has:\n- image_index: 0-based index of which uploaded image this bottle is in\n- bbox: a tight crop of just THIS bottle as [x, y, width, height] in pixels relative to the image (0,0 = top-left, x increases right, y increases down). The bbox should start at the topmost visible point of this bottle (cork or foil capsule) and end at the bottommost visible point (the base of the bottle resting on a shelf). The width should span from the left edge of the bottle to the right edge of the bottle. The crop should look like a portrait photo of a single wine bottle. CRITICAL: The y coordinate is where the TOP of the bottle is. The y+height is where the BOTTOM of the bottle is. Do NOT center the bbox on the label — the label is in the MIDDLE of the bottle, but your bbox must extend ABOVE and BELOW the label.\n- producer: winery/domaine/château name\n- vintage: year as string or null\n- appellation: region/AOC or null\n- varietal: grape or wine type\n- condition: "Excellent"/"Good"/"Fair"/"Poor"/"Unknown"\n- format: bottle size or null\n- quantity: integer (always 1 since each row = one bottle) or null\n- notes: observations or null\n${notes?'\nContext: '+notes:''}`});
+  content.push({type:'text',text:`You are a master sommelier. Analyse these ${content.length} cellar image(s).\n\nReturn ONLY a raw JSON array (no markdown, no backticks). Each object represents ONE wine bottle visible in the images.\n\nFor each bottle, give a normalised bounding box using PERCENTAGES of the image (0.0 to 1.0):\n- image_index: 0-based index of which uploaded image this bottle is in\n- bbox_pct: [left, top, right, bottom] where each value is between 0.0 and 1.0\n  - left: horizontal position of bottle's LEFT edge (e.g. 0.1 means 10% from left)\n  - top: vertical position of bottle's TOP — the cork/capsule (e.g. 0.05 means 5% from top of image)\n  - right: horizontal position of bottle's RIGHT edge (e.g. 0.3 means 30% from left)\n  - bottom: vertical position of bottle's BOTTOM — the base (e.g. 0.95 means 95% from top of image)\n  - The bottle's LABEL is in the MIDDLE of the bottle. The bbox must extend ABOVE the label (to the cork) and BELOW the label (to the base).\n  - A wine bottle is roughly 3x taller than wide, so (bottom-top) should be about 3x (right-left).\n\nOther fields:\n- producer: winery/domaine/château name\n- vintage: year as string or null\n- appellation: region/AOC or null\n- varietal: grape or wine type\n- condition: "Excellent"/"Good"/"Fair"/"Poor"/"Unknown"\n- format: bottle size or null\n- quantity: integer (always 1 since each row = one bottle) or null\n- notes: observations or null\n${notes?'\nContext: '+notes:''}`});
   setScanStatus('Analysing with AI…');
   try{
     const resp=await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,messages:[{role:'user',content}]})});
@@ -504,16 +504,32 @@ async function doScan() {
       try {
         const imgIdx = (typeof w.image_index === 'number') ? w.image_index : 0;
         const sourceUrl = resizedDataUrls[imgIdx] || resizedDataUrls[0];
-        if (sourceUrl && Array.isArray(w.bbox) && w.bbox.length === 4) {
-          const cropped = await cropImage(sourceUrl, w.bbox);
+        // Convert bbox_pct or bbox to actual pixel coords
+        let bboxPixels = null;
+        if (sourceUrl) {
+          const img = await loadImage(sourceUrl);
+          if (Array.isArray(w.bbox_pct) && w.bbox_pct.length === 4) {
+            const [l, t, r, b] = w.bbox_pct;
+            bboxPixels = [
+              Math.round(l * img.width),
+              Math.round(t * img.height),
+              Math.round((r - l) * img.width),
+              Math.round((b - t) * img.height)
+            ];
+          } else if (Array.isArray(w.bbox) && w.bbox.length === 4) {
+            bboxPixels = w.bbox;
+          }
+        }
+        if (sourceUrl && bboxPixels) {
+          const cropped = await cropImage(sourceUrl, bboxPixels);
           const fileName = `${session.user.id}/${Date.now()}_${i}.jpg`;
           const uploadUrl = await uploadToStorage(cropped, fileName);
           if (uploadUrl) w.image_url = uploadUrl;
         }
       } catch(e) { console.error('Crop/upload failed for wine', i, e); }
       // Strip out fields not in DB schema
-      const { image_index, bbox, ...rest } = w;
-      finalRows.push({ ...rest, cellar_id: currentCellar.id, user_id: session.user.id, crop_box: bbox || null });
+      const { image_index, bbox, bbox_pct, ...rest } = w;
+      finalRows.push({ ...rest, cellar_id: currentCellar.id, user_id: session.user.id, crop_box: w.bbox_pct || w.bbox || null });
     }
     setScanStatus('Saving to cellar…');
     for(const row of finalRows) await SB.insert(session.access_token,'wines',row);
@@ -530,6 +546,15 @@ async function doScan() {
   }
 }
 
+
+async function loadImage(dataUrl) {
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => res(img);
+    img.onerror = rej;
+    img.src = dataUrl;
+  });
+}
 
 async function cropImage(dataUrl, bbox) {
   return new Promise((res, rej) => {
@@ -636,6 +661,10 @@ function today() { return new Date().toISOString().slice(0,10); }
 function dl(content,name,mime) { const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type:mime}));a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a); }
 
 // ── MODAL ────────────────────────────────────────────────
+function showFullImage(url) {
+  showModal(`<div style="text-align:center;"><img src="${url}" style="max-width:100%;max-height:70vh;border-radius:8px;" /><div style="margin-top:14px;"><button class="btn btn-outline" onclick="closeModal()">Close</button></div></div>`);
+}
+
 function showModal(html) {
   closeModal();
   const o=document.createElement('div'); o.className='modal-overlay'; o.id='modal-overlay';
