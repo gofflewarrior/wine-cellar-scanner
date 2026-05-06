@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0048)file:///Users/nicole/Downloads/index%20(22).html -->
+<!-- saved from url=(0048)file:///Users/nicole/Downloads/index%20(23).html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -391,6 +391,13 @@ function renderWineList() {
   const cnt = document.getElementById('wine-count');
   const lst = document.getElementById('wine-list');
   if (!cnt||!lst) return;
+  // Use event delegation for thumbnails
+  lst.onclick = (e) => {
+    if (e.target.classList && e.target.classList.contains('wine-thumb')) {
+      const url = e.target.getAttribute('data-fullimg');
+      if (url) showFullImage(url);
+    }
+  };
   if (activeTab==='export') {
     cnt.textContent=''; 
     lst.innerHTML = currentWines.length ? `<div class="export-row"><button class="btn btn-outline" onclick="exportCSV()">Download CSV</button><button class="btn btn-outline" onclick="exportJSON()">Download JSON</button></div>` : '<div class="empty">No wines to export yet.</div>';
@@ -406,7 +413,7 @@ function wineCard(w) {
   const q = encodeURIComponent([w.producer,w.vintage,w.appellation].filter(Boolean).join(' '));
   return `<div class="wine-card">
     <div style="display:flex;gap:12px;align-items:flex-start;">
-    ${w.image_url ? `<img src="${escH(w.image_url)}" style="width:60px;height:80px;object-fit:cover;border-radius:6px;border:1px solid #e0ddd8;flex-shrink:0;cursor:pointer;" onerror="this.style.display='none'" onclick="showFullImage('${escH(w.image_url)}')">` : ''}
+    ${w.image_url ? `<img src="${escH(w.image_url)}" data-fullimg="${escH(w.image_url)}" class="wine-thumb" style="width:60px;height:80px;object-fit:cover;border-radius:6px;border:1px solid #e0ddd8;flex-shrink:0;cursor:pointer;" onerror="this.style.display='none'">` : ''}
     <div style="flex:1;min-width:0;">
     <div class="wine-top"><div class="wine-producer">${escH(w.producer||'Unknown')}</div>${w.vintage?`<span class="wine-vintage">${escH(w.vintage)}</span>`:''}</div>
     ${w.appellation?`<div class="wine-app">${escH(w.appellation)}</div>`:''}
@@ -494,6 +501,9 @@ async function doScan() {
     const raw=data.content.map(b=>b.text||'').join('').trim().replace(/```json|```/g,'').trim();
     const wines=JSON.parse(raw);
     const arr=Array.isArray(wines)?wines:[wines];
+    if (arr[0]) {
+      alert('AI bbox debug:\n\nproducer: ' + (arr[0].producer||'?') + '\nbbox_pct: ' + JSON.stringify(arr[0].bbox_pct) + '\nbbox: ' + JSON.stringify(arr[0].bbox));
+    }
     const rows=arr.map(w=>({...w,cellar_id:currentCellar.id,user_id:session.user.id}));
     for(const row of rows) await SB.insert(session.access_token,'wines',row);
     setScanStatus('Cropping bottle thumbnails…');
