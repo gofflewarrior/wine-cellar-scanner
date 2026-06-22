@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cellar Legacy — Marketplace</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f7f5f2; color: #1a1916; min-height: 100vh; }
+.app { max-width: 480px; margin: 0 auto; padding: 20px 16px 80px; }
+
+/* Auth */
+.auth-box { background: #fff; border: 1px solid #e0ddd8; border-radius: 16px; padding: 28px 24px; margin-top: 40px; }
+.auth-title { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+.auth-sub { font-size: 13px; color: #888; margin-bottom: 24px; }
+.auth-tabs { display: flex; margin-bottom: 20px; border: 1px solid #e0ddd8; border-radius: 8px; overflow: hidden; }
+.auth-tab { flex: 1; padding: 10px; font-size: 13px; font-weight: 500; background: #f7f5f2; border: none; cursor: pointer; color: #888; }
+.auth-tab.active { background: #1a1916; color: #fff; }
+input[type=email], input[type=password], input[type=text], input[type=number], input[type=tel] { width: 100%; padding: 11px 13px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; font-family: inherit; background: #fafafa; outline: none; margin-bottom: 10px; }
+input:focus { border-color: #1a1916; background: #fff; }
+.btn { width: 100%; padding: 13px; background: #1a1916; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
+.btn:active { opacity: 0.85; }
+.btn-outline { background: #fff; color: #1a1916; border: 1px solid #ddd; }
+.btn-sm { padding: 8px 14px; font-size: 12px; border-radius: 7px; width: auto; margin: 0; }
+.divider { text-align: center; font-size: 12px; color: #bbb; margin: 8px 0; }
+.msg-err { font-size: 12px; color: #9b2c2c; background: #fdf0f0; border: 1px solid #f5c1c1; border-radius: 6px; padding: 8px 12px; margin-bottom: 10px; }
+.msg-ok { font-size: 12px; color: #1a7a4a; background: #f0fdf4; border: 1px solid #a7f3d0; border-radius: 6px; padding: 8px 12px; margin-bottom: 10px; }
+
+/* Header */
+.top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #e0ddd8; }
+.app-name { font-size: 20px; font-weight: 700; }
+.app-name span { font-size: 12px; color: #888; font-weight: 400; }
+.user-email { font-size: 11px; color: #888; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Switcher */
+.switcher { display: flex; gap: 8px; margin-bottom: 16px; }
+.switcher a { flex: 1; padding: 9px; background: #fff; border: 1px solid #e0ddd8; border-radius: 8px; text-decoration: none; color: #888; text-align: center; font-size: 13px; font-weight: 500; }
+.switcher a.active { background: #1a1916; color: #fff; border-color: #1a1916; }
+
+/* Filters */
+.filters { display: flex; gap: 8px; margin-bottom: 14px; }
+.filters input { flex: 1; margin: 0; padding: 9px 11px; font-size: 13px; }
+
+/* Listing card */
+.listing-card { background: #fff; border: 1px solid #e0ddd8; border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+.listing-top { display: flex; gap: 12px; }
+.listing-img { width: 80px; height: 110px; object-fit: cover; border-radius: 8px; border: 1px solid #e0ddd8; flex-shrink: 0; background: #f0ede8; cursor: pointer; }
+.listing-info { flex: 1; min-width: 0; }
+.listing-producer { font-size: 16px; font-weight: 600; margin-bottom: 2px; }
+.listing-vintage { display: inline-block; font-size: 11px; font-weight: 600; background: #f0ede8; border-radius: 5px; padding: 2px 7px; margin-left: 4px; }
+.listing-app { font-size: 12px; color: #888; font-style: italic; margin-bottom: 8px; }
+.listing-meta { font-size: 11px; color: #666; margin-bottom: 6px; }
+.listing-price { font-size: 18px; font-weight: 700; color: #1a1916; margin: 6px 0 4px; }
+.listing-seller { font-size: 11px; color: #888; }
+.listing-desc { font-size: 12px; color: #555; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; line-height: 1.5; }
+.listing-actions { display: flex; gap: 6px; margin-top: 10px; }
+.la-btn { flex: 1; padding: 9px; background: #1a1916; color: #fff; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: none; text-align: center; }
+.la-btn.outline { background: #fff; color: #1a1916; border: 1px solid #ddd; }
+
+/* Empty / loading */
+.empty { text-align: center; padding: 40px 16px; color: #bbb; font-size: 14px; }
+
+/* Modal */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: flex-end; justify-content: center; z-index: 100; }
+.modal { background: #fff; border-radius: 16px 16px 0 0; padding: 24px 20px 40px; width: 100%; max-width: 480px; max-height: 85vh; overflow-y: auto; }
+.modal-title { font-size: 17px; font-weight: 700; margin-bottom: 14px; }
+.modal-row { display: flex; gap: 8px; margin-top: 4px; }
+.edit-label { font-size: 11px; color: #888; display: block; margin-bottom: 3px; }
+</style>
+</head>
+<body>
+<div class="app" id="app"><div class="empty">Loading…</div></div>
+
+<script>
+// ── CONFIG ───────────────────────────────────────────────
+const SB_URL = 'https://gxucxzjwwkahccxqjhwv.supabase.co';
+const SB_KEY = 'sb_publishable_RV8GKpaRkGHOoJJzr6H8MA_xyqxKkju';
+
+// ── SUPABASE REST ────────────────────────────────────────
+class SB {
+  static headers(token) {
+    const h = { 'apikey': SB_KEY, 'Content-Type': 'application/json' };
+    if (token) h['Authorization'] = 'Bearer ' + token;
+    return h;
+  }
+  static async signUp(email, password, meta={}) {
+    const r = await fetch(`${SB_URL}/auth/v1/signup`, {
+      method: 'POST', headers: this.headers(),
+      body: JSON.stringify({ email, password, data: meta })
+    });
+    return r.json();
+  }
+  static async signIn(email, password) {
+    const r = await fetch(`${SB_URL}/auth/v1/token?grant_type=password`, {
+      method: 'POST', headers: this.headers(),
+      body: JSON.stringify({ email, password })
+    });
+    return r.json();
+  }
+  static async query(token, table, method='GET', body=null, filter='') {
+    const headers = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Accept': 'application/json' };
+    if (method === 'POST' || method === 'PATCH') headers['Prefer'] = 'return=representation';
+    const r = await fetch(`${SB_URL}/rest/v1/${table}${filter}`, {
+      method, headers, body: body ? JSON.stringify(body) : null
+    });
+    if (r.status === 204) return [];
+    const data = await r.json();
+    if (!r.ok) console.error('Supabase error:', r.status, data);
+    return data;
+  }
+  static select(token, table, filter='') { return this.query(token, table, 'GET', null, filter); }
+  static insert(token, table, body) { return this.query(token, table, 'POST', body); }
+}
+
+// ── SESSION ──────────────────────────────────────────────
+let session = null;
+function saveSession(s) { session = s; if(s) localStorage.setItem('cl_session', JSON.stringify(s)); else localStorage.removeItem('cl_session'); }
+function loadSession() {
+  try { const s = localStorage.getItem('cl_session'); return s ? JSON.parse(s) : null; } catch(e) { return null; }
+}
+
+const app = document.getElementById('app');
+
+// ── INIT ─────────────────────────────────────────────────
+async function init() {
+  session = loadSession();
+  if (session && session.access_token) {
+    try {
+      const r = await fetch(`${SB_URL}/auth/v1/user`, { headers: SB.headers(session.access_token) });
+      if (r.ok) { renderMarketplace(); return; }
+    } catch(e) {}
+    saveSession(null);
+  }
+  renderAuth('signin');
+}
+
+// ── AUTH ─────────────────────────────────────────────────
+function renderAuth(tab) {
+  app.innerHTML = `
+    <div class="auth-box">
+      <div class="auth-title">🍷 Marketplace</div>
+      <div class="auth-sub">Buy and sell fine wines from private collections</div>
+      <div class="auth-tabs">
+        <button class="auth-tab ${tab==='signin'?'active':''}" id="tab-signin">Sign in</button>
+        <button class="auth-tab ${tab==='signup'?'active':''}" id="tab-signup">Sign up as buyer</button>
+      </div>
+      <div id="auth-msg"></div>
+      ${tab==='signup' ? `
+        <input type="text" id="auth-name" placeholder="Display name" />
+        <input type="email" id="auth-email" placeholder="Email address" autocomplete="email" />
+        <input type="tel" id="auth-phone" placeholder="Contact phone (optional)" />
+        <input type="password" id="auth-pass" placeholder="Password" autocomplete="new-password" />
+        <input type="password" id="auth-pass2" placeholder="Confirm password" autocomplete="new-password" />
+      ` : `
+        <input type="email" id="auth-email" placeholder="Email address" autocomplete="email" />
+        <input type="password" id="auth-pass" placeholder="Password" autocomplete="current-password" />
+      `}
+      <button class="btn" id="auth-btn">${tab==='signin'?'Sign in':'Create buyer account'}</button>
+      <div style="text-align:center;margin-top:14px;font-size:12px;color:#888;">
+        Want to sell your wines? <a href="/" style="color:#1a1916;">Go to seller portal →</a>
+      </div>
+    </div>`;
+  document.getElementById('tab-signin').onclick = () => renderAuth('signin');
+  document.getElementById('tab-signup').onclick = () => renderAuth('signup');
+  document.getElementById('auth-btn').onclick = () => doAuth(tab);
+}
+
+function showMsg(html, ok=false) {
+  const el = document.getElementById('auth-msg');
+  if (el) el.innerHTML = `<div class="${ok?'msg-ok':'msg-err'}">${html}</div>`;
+}
+
+async function doAuth(tab) {
+  const email = document.getElementById('auth-email').value.trim();
+  const pass = document.getElementById('auth-pass').value;
+  if (!email || !pass) { showMsg('Please enter email and password.'); return; }
+  if (tab === 'signup') {
+    const name = document.getElementById('auth-name').value.trim();
+    const phone = document.getElementById('auth-phone').value.trim();
+    const pass2 = document.getElementById('auth-pass2').value;
+    if (!name) { showMsg('Please enter a display name.'); return; }
+    if (pass !== pass2) { showMsg('Passwords do not match.'); return; }
+    const data = await SB.signUp(email, pass, { display_name: name, contact_phone: phone, user_type: 'buyer' });
+    if (data.error) { showMsg(data.error.message || JSON.stringify(data)); return; }
+    showMsg('Account created! Check your email to confirm, then sign in.', true);
+  } else {
+    const data = await SB.signIn(email, pass);
+    if (data.error || !data.access_token) { showMsg(data.error?.message || 'Login failed.'); return; }
+    const ur = await fetch(`${SB_URL}/auth/v1/user`, { headers: SB.headers(data.access_token) });
+    const user = await ur.json();
+    saveSession({ ...data, user });
+    // Ensure profile exists
+    await SB.insert(data.access_token, 'profiles', { user_id: user.id, display_name: user.email.split('@')[0], contact_email: user.email });
+    renderMarketplace();
+  }
+}
+
+// ── MARKETPLACE ──────────────────────────────────────────
+let allListings = [];
+async function renderMarketplace() {
+  app.innerHTML = `
+    <div class="top-bar">
+      <div class="app-name">🍷 Marketplace <span>· Cellar Legacy</span></div>
+      <div>
+        <div class="user-email">${session.user?.email||''}</div>
+        <button class="btn btn-outline btn-sm" id="signout-btn">Sign out</button>
+      </div>
+    </div>
+    <div class="switcher">
+      <a href="/" >My Cellar</a>
+      <a href="/marketplace.html" class="active">Marketplace</a>
+    </div>
+    <div class="filters">
+      <input type="text" id="search-input" placeholder="Search producer, region, varietal…" />
+    </div>
+    <div id="listings"><div class="empty">Loading listings…</div></div>`;
+  document.getElementById('signout-btn').onclick = () => { saveSession(null); renderAuth('signin'); };
+  document.getElementById('search-input').oninput = filterListings;
+  await loadListings();
+}
+
+async function loadListings() {
+  // Get all active listings with wine + seller profile info
+  const listings = await SB.select(session.access_token, 'listings', 
+    '?select=*,wines(*),profiles!seller_id(display_name,contact_email,contact_phone)&status=eq.active&order=created_at.desc');
+  allListings = Array.isArray(listings) ? listings : [];
+  renderListings(allListings);
+}
+
+function filterListings() {
+  const q = document.getElementById('search-input').value.toLowerCase().trim();
+  if (!q) { renderListings(allListings); return; }
+  const filtered = allListings.filter(l => {
+    const w = l.wines || {};
+    return [w.producer, w.vintage, w.appellation, w.varietal, l.description].join(' ').toLowerCase().includes(q);
+  });
+  renderListings(filtered);
+}
+
+function renderListings(listings) {
+  const el = document.getElementById('listings');
+  if (!el) return;
+  if (!listings.length) { el.innerHTML = '<div class="empty">No wines listed for sale yet.</div>'; return; }
+  el.innerHTML = listings.map(l => {
+    const w = l.wines || {};
+    const p = l.profiles || {};
+    return `<div class="listing-card">
+      <div class="listing-top">
+        ${w.image_url ? `<img class="listing-img" src="${escH(w.image_url)}" data-fullimg="${escH(w.image_url)}" onerror="this.style.display='none'">` : '<div class="listing-img"></div>'}
+        <div class="listing-info">
+          <div class="listing-producer">${escH(w.producer||'Unknown')}${w.vintage?`<span class="listing-vintage">${escH(w.vintage)}</span>`:''}</div>
+          ${w.appellation?`<div class="listing-app">${escH(w.appellation)}</div>`:''}
+          <div class="listing-meta">
+            ${w.varietal?escH(w.varietal)+' · ':''}${w.format||'750ml'}${w.condition?` · ${escH(w.condition)}`:''}
+          </div>
+          <div class="listing-price">${l.currency||'HKD'} ${Number(l.price).toLocaleString()}</div>
+          <div class="listing-seller">Seller: ${escH(p.display_name||'Anonymous')}</div>
+        </div>
+      </div>
+      ${l.description?`<div class="listing-desc">${escH(l.description)}</div>`:''}
+      <div class="listing-actions">
+        ${p.contact_email?`<a class="la-btn" href="mailto:${escH(p.contact_email)}?subject=Interested in ${encodeURIComponent(w.producer+' '+(w.vintage||''))}">Contact seller</a>`:''}
+        ${p.contact_phone?`<a class="la-btn outline" href="tel:${escH(p.contact_phone)}">Call</a>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  // Add click handlers for full image view
+  el.onclick = (e) => {
+    if (e.target.classList && e.target.classList.contains('listing-img')) {
+      const url = e.target.getAttribute('data-fullimg');
+      if (url) showFullImage(url);
+    }
+  };
+}
+
+function showFullImage(url) {
+  showModal(`<div style="text-align:center;"><img src="${url}" style="max-width:100%;max-height:70vh;border-radius:8px;" /><div style="margin-top:14px;"><button class="btn btn-outline" onclick="closeModal()">Close</button></div></div>`);
+}
+
+function showModal(html) {
+  closeModal();
+  const o=document.createElement('div'); o.className='modal-overlay'; o.id='modal-overlay';
+  o.innerHTML=`<div class="modal">${html}</div>`;
+  o.addEventListener('click',e=>{if(e.target===o)closeModal();});
+  document.body.appendChild(o);
+}
+function closeModal() { document.getElementById('modal-overlay')?.remove(); }
+
+function escH(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+init();
+</script>
+</body>
+</html>

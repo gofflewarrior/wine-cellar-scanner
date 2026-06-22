@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0048)file:///Users/nicole/Downloads/index%20(25).html -->
+<!-- saved from url=(0049)file:///Users/piggybankenemy/Downloads/index.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -284,6 +284,7 @@ async function renderCellars() {
         <button class="btn btn-outline btn-sm" id="signout-btn">Sign out</button>
       </div>
     </div>
+    <a href="/marketplace.html" style="display:block;text-align:center;background:#fff8e6;border:1px solid #f0d080;border-radius:8px;padding:10px;font-size:13px;color:#7a5c00;text-decoration:none;margin-bottom:16px;">🏷️ Visit the Marketplace</a>
     <div class="section-title">My Cellars</div>
     <button class="btn-dashed" id="new-cellar-btn">+ New cellar</button>
     <div id="cellar-list"><div class="empty">Loading…</div></div>`;
@@ -382,8 +383,10 @@ function switchTab(tab) {
 }
 
 async function loadWines() {
-  const data = await SB.select(session.access_token, 'wines', `?cellar_id=eq.${currentCellar.id}&order=created_at.desc`);
+  const data = await SB.select(session.access_token, 'wines', `?cellar_id=eq.${currentCellar.id}&select=*,listings(id,price,status)&order=created_at.desc`);
   currentWines = Array.isArray(data) ? data : [];
+  // Flag is_listed
+  currentWines.forEach(w => { w.is_listed = w.listings && w.listings.length > 0 && w.listings.some(l => l.status === 'active'); });
   renderWineList();
 }
 
@@ -428,6 +431,7 @@ function wineCard(w) {
     </div>
     </div>
     <div class="wine-actions">
+      <button class="wa-btn" onclick="listForSale('${w.id}')">${w.is_listed?'Listed ✓':'Sell'}</button>
       <button class="wa-btn" onclick="editWine('${w.id}')">Edit</button>
       <button class="wa-btn" onclick="moveWine('${w.id}')">Move</button>
       <button class="wa-btn danger" onclick="deleteWine('${w.id}')">Delete</button>
@@ -623,6 +627,84 @@ async function uploadToStorage(blob, path) {
     alert('Storage upload error: ' + e.message);
     return null;
   }
+}
+
+
+// ── LIST FOR SALE ────────────────────────────────────────
+async function listForSale(wineId) {
+  const w = currentWines.find(x => x.id === wineId);
+  if (!w) return;
+  // Check if already listed
+  const existing = await SB.select(session.access_token, 'listings', `?wine_id=eq.${wineId}`);
+  const isListed = Array.isArray(existing) && existing.length > 0;
+  const cur = isListed ? existing[0] : null;
+  // Ensure profile exists for the current user
+  const profiles = await SB.select(session.access_token, 'profiles', `?user_id=eq.${session.user.id}`);
+  const hasProfile = Array.isArray(profiles) && profiles.length > 0;
+  const profile = hasProfile ? profiles[0] : null;
+  showModal(`
+    <div class="modal-title">${isListed?'Update listing':'List for sale'}</div>
+    <div style="font-size:13px;color:#666;margin-bottom:12px;">${escH(w.producer||'Unknown')} ${w.vintage?'· '+escH(w.vintage):''}</div>
+    <label class="edit-label">Price (HKD)</label>
+    <input type="number" id="ls-price" value="${cur?cur.price:''}" placeholder="e.g. 1500" />
+    <label class="edit-label">Description (optional)</label>
+    <textarea id="ls-desc" rows="3" placeholder="Storage history, provenance, special notes…">${cur?escH(cur.description||''):''}</textarea>
+    <label class="edit-label">Your display name</label>
+    <input type="text" id="ls-name" value="${profile?escH(profile.display_name||''):session.user.email.split('@')[0]}" placeholder="e.g. John D." />
+    <label class="edit-label">Contact email</label>
+    <input type="email" id="ls-email" value="${profile?escH(profile.contact_email||session.user.email):session.user.email}" />
+    <label class="edit-label">Contact phone (optional)</label>
+    <input type="tel" id="ls-phone" value="${profile?escH(profile.contact_phone||''):''}" placeholder="+852 ..." />
+    <div class="modal-row" style="margin-top:12px;">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      ${isListed?`<button class="btn btn-danger-outline" onclick="unlistWine('${cur.id}')">Unlist</button>`:''}
+      <button class="btn" onclick="saveListing('${wineId}','${cur?cur.id:''}')">${isListed?'Update':'List'}</button>
+    </div>`);
+}
+
+async function saveListing(wineId, listingId) {
+  const price = parseFloat(document.getElementById('ls-price').value);
+  if (!price || price <= 0) { alert('Please enter a valid price.'); return; }
+  const desc = document.getElementById('ls-desc').value.trim();
+  const name = document.getElementById('ls-name').value.trim();
+  const email = document.getElementById('ls-email').value.trim();
+  const phone = document.getElementById('ls-phone').value.trim();
+  // Upsert profile
+  const existingProfiles = await SB.select(session.access_token, 'profiles', `?user_id=eq.${session.user.id}`);
+  const profileData = { display_name: name, contact_email: email, contact_phone: phone };
+  if (Array.isArray(existingProfiles) && existingProfiles.length > 0) {
+    await SB.update(session.access_token, 'profiles', session.user.id, profileData);
+    // Actually that uses id=eq.uid but profiles use user_id PK - patch directly:
+    await fetch(`${SB_URL}/rest/v1/profiles?user_id=eq.${session.user.id}`, {
+      method: 'PATCH',
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer '+session.access_token, 'Content-Type': 'application/json' },
+      body: JSON.stringify(profileData)
+    });
+  } else {
+    await SB.insert(session.access_token, 'profiles', { user_id: session.user.id, ...profileData });
+  }
+  // Insert or update listing
+  if (listingId) {
+    await fetch(`${SB_URL}/rest/v1/listings?id=eq.${listingId}`, {
+      method: 'PATCH',
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer '+session.access_token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ price, description: desc, updated_at: new Date().toISOString() })
+    });
+  } else {
+    await SB.insert(session.access_token, 'listings', { wine_id: wineId, seller_id: session.user.id, price, description: desc });
+  }
+  closeModal();
+  await loadWines();
+}
+
+async function unlistWine(listingId) {
+  if (!confirm('Remove this wine from marketplace?')) return;
+  await fetch(`${SB_URL}/rest/v1/listings?id=eq.${listingId}`, {
+    method: 'DELETE',
+    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer '+session.access_token }
+  });
+  closeModal();
+  await loadWines();
 }
 
 // ── EDIT/DELETE/MOVE WINE ────────────────────────────────
