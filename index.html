@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0049)file:///Users/piggybankenemy/Downloads/index.html -->
+<!-- saved from url=(0051)file:///Users/piggybankenemy/Downloads/index_1.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -383,10 +383,15 @@ function switchTab(tab) {
 }
 
 async function loadWines() {
-  const data = await SB.select(session.access_token, 'wines', `?cellar_id=eq.${currentCellar.id}&select=*,listings(id,price,status)&order=created_at.desc`);
+  const data = await SB.select(session.access_token, 'wines', `?cellar_id=eq.${currentCellar.id}&order=created_at.desc`);
   currentWines = Array.isArray(data) ? data : [];
-  // Flag is_listed
-  currentWines.forEach(w => { w.is_listed = w.listings && w.listings.length > 0 && w.listings.some(l => l.status === 'active'); });
+  // Separately fetch listings for these wines to flag is_listed
+  if (currentWines.length) {
+    const wineIds = currentWines.map(w => w.id).join(',');
+    const listings = await SB.select(session.access_token, 'listings', `?wine_id=in.(${wineIds})&status=eq.active`);
+    const listedSet = new Set((Array.isArray(listings)?listings:[]).map(l => l.wine_id));
+    currentWines.forEach(w => { w.is_listed = listedSet.has(w.id); });
+  }
   renderWineList();
 }
 
