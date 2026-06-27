@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
+<!-- saved from url=(0057)file:///Users/piggybankenemy/Downloads/marketplace_1.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cellar Legacy — Marketplace</title>
 <style>
@@ -69,7 +69,24 @@ input:focus { border-color: #1a1916; background: #fff; }
 </style>
 </head>
 <body>
-<div class="app" id="app"><div class="empty">Loading…</div></div>
+<div class="app" id="app">
+    <div class="auth-box">
+      <div class="auth-title">🍷 Marketplace</div>
+      <div class="auth-sub">Buy and sell fine wines from private collections</div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-signin">Sign in</button>
+        <button class="auth-tab " id="tab-signup">Sign up as buyer</button>
+      </div>
+      <div id="auth-msg"></div>
+      
+        <input type="email" id="auth-email" placeholder="Email address" autocomplete="email">
+        <input type="password" id="auth-pass" placeholder="Password" autocomplete="current-password">
+      
+      <button class="btn" id="auth-btn">Sign in</button>
+      <div style="text-align:center;margin-top:14px;font-size:12px;color:#888;">
+        Want to sell your wines? <a href="file:///" style="color:#1a1916;">Go to seller portal →</a>
+      </div>
+    </div></div>
 
 <script>
 // ── CONFIG ───────────────────────────────────────────────
@@ -220,10 +237,29 @@ async function renderMarketplace() {
 }
 
 async function loadListings() {
-  // Get all active listings with wine + seller profile info
-  const listings = await SB.select(session.access_token, 'listings', 
-    '?select=*,wines(*),profiles!seller_id(display_name,contact_email,contact_phone)&status=eq.active&order=created_at.desc');
-  allListings = Array.isArray(listings) ? listings : [];
+  // Get all active listings
+  const listings = await SB.select(session.access_token, 'listings', '?status=eq.active&order=created_at.desc');
+  const list = Array.isArray(listings) ? listings : [];
+  if (!list.length) { allListings = []; renderListings([]); return; }
+  
+  // Fetch related wines and profiles separately
+  const wineIds = [...new Set(list.map(l => l.wine_id))].join(',');
+  const sellerIds = [...new Set(list.map(l => l.seller_id))].join(',');
+  const [wines, profiles] = await Promise.all([
+    SB.select(session.access_token, 'wines', `?id=in.(${wineIds})`),
+    SB.select(session.access_token, 'profiles', `?user_id=in.(${sellerIds})`)
+  ]);
+  const wineMap = {};
+  (Array.isArray(wines)?wines:[]).forEach(w => { wineMap[w.id] = w; });
+  const profileMap = {};
+  (Array.isArray(profiles)?profiles:[]).forEach(p => { profileMap[p.user_id] = p; });
+  
+  // Attach related data
+  list.forEach(l => {
+    l.wines = wineMap[l.wine_id] || {};
+    l.profiles = profileMap[l.seller_id] || {};
+  });
+  allListings = list;
   renderListings(allListings);
 }
 
@@ -290,5 +326,6 @@ function escH(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').r
 
 init();
 </script>
-</body>
-</html>
+
+
+</body></html>
