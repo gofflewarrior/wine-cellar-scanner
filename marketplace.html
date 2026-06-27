@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0057)file:///Users/piggybankenemy/Downloads/marketplace_1.html -->
+<!-- saved from url=(0057)file:///Users/piggybankenemy/Downloads/marketplace_2.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -296,7 +296,7 @@ function renderListings(listings) {
       ${l.description?`<div class="listing-desc">${escH(l.description)}</div>`:''}
       <div class="listing-actions">
         ${p.contact_email?`<a class="la-btn" href="mailto:${escH(p.contact_email)}?subject=Interested in ${encodeURIComponent(w.producer+' '+(w.vintage||''))}">Contact seller</a>`:''}
-        ${p.contact_phone?`<a class="la-btn outline" href="tel:${escH(p.contact_phone)}">Call</a>`:''}
+        ${p.contact_phone?`<a class="la-btn outline" href="https://wa.me/${escH(p.contact_phone.replace(/[^0-9]/g,''))}?text=${encodeURIComponent('Hi, I\'m interested in your '+(w.producer||'')+' '+(w.vintage||'')+' listed on Cellar Legacy.')}" target="_blank">WhatsApp</a>`:''}
       </div>
     </div>`;
   }).join('');
